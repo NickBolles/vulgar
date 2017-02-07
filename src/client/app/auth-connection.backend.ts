@@ -4,10 +4,12 @@ import { Request,
          ResponseOptions,
          XSRFStrategy,
          Response } from '@angular/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 
+@Injectable()
 export class AuthConnectionBackend extends XHRBackend {
 
     constructor(private browserXhr: BrowserXhr,

@@ -170,5 +170,5 @@ class Server {
   }
 }
 
-let server = Server.bootstrap();
-export = server.app;
+let app = Server.bootstrap().app;
+export = app;

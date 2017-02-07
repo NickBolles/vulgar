@@ -17,7 +17,7 @@ const path = require('path');
  * Webpack Plugins
  */
 const AssetsPlugin = require('assets-webpack-plugin');
-const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
+const ForkCheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 
 /**
@@ -127,7 +127,7 @@ module.exports = function(options) {
         {
           test: /\.js$/,
           loaders: [
-            'babel'
+            'babel-loader'
           ],
           exclude: [
             helpers.root('node_modules')
