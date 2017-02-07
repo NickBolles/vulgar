@@ -1,6 +1,6 @@
 import { AuthService } from '../shared/services';
 import { Component } from '@angular/core';
-import { ClientSocket } from '../shared/client-socket.ts';
+import { ClientSocket } from '../shared/client-socket';
 
 @Component({
   selector: 'vu-chat',
@@ -24,7 +24,7 @@ export class ChatComponent extends ClientSocket {
          * with the chat system.
          */
         if(user === 0)
-          this.handle = 'user-' + Math.floor((Math.random() * 10000) + 1)
+          this.handle = 'user-' + Math.floor((Math.random() * 10000) + 1);
         /**
          * Otherwise set the user's handle to the username retrieved from the
          * session data.
