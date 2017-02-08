@@ -5,11 +5,15 @@ import { ChatComponent } from './chat.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { MaterialModule } from "@angular/material";
+
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MaterialModule.forRoot()
   ],
   declarations: [
     ChatComponent
