@@ -1,52 +1,61 @@
-<div *ngIf="!submitted && !appState.get('isAuthenticated')">
-  <h1>Login</h1>
-  <p>{{ message }}</p>
-  <form *ngIf="active" [formGroup]="loginForm" novalidate (ngSubmit)="processUserData()">
-    <div>
-      <div>
-        <label for="">Username or Email</label>
-        <input type="text" formControlName="username">
-        <small [hidden]="loginForm.controls.username.valid || (loginForm.controls.username.pristine && !submitted)">
-              Username is required (minimum 4 characters).
-        </small>
-      </div>
+<div *ngIf="!appState.get('isAuthenticated')">
+  <h1 class="section-header">Login</h1>
+  <md-card>
+    <md-card-content>
 
-      <div>
-        <label for="">Password</label>
-        <input type="password" formControlName="password">
-        <small [hidden]="loginForm.controls.password.valid || (loginForm.controls.password.pristine && !submitted)">
-              Password is required (minimum 8 characters).
-        </small>
+      <p>{{ message }}</p>
+      <form *ngIf="active" [formGroup]="loginForm" novalidate (ngSubmit)="processUserData()">
+        <div>
+          <div>
+            <md-input-container>
+              <input md-input type="text" formControlName="username" placeholder="Username or Email">
+            </md-input-container>
+            <small class="form-error"
+                  [hidden]="loginForm.controls.username.valid || (loginForm.controls.username.pristine && !submitted)">
+                  Username is required (minimum 4 characters).
+            </small>
+          </div>
+
+          <div>
+            <md-input-container>
+              <input md-input type="password" formControlName="password" placeholder="Password">
+            </md-input-container>
+            <small class="form-error"
+                  [hidden]="loginForm.controls.password.valid || (loginForm.controls.password.pristine && !submitted)">
+                  Password is required (minimum 8 characters).
+            </small>
+          </div>
+        </div>
+        <div>
+          <button md-button color="warn" type="button" (click)="newUser()">
+            Clear
+          </button>
+          <button md-raised-button color="primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+      <div *ngIf="submitted && !appState.get('isAuthenticated')">
+        <p [hidden]="accepted">
+          Waiting on a response from the server...
+        </p>
+        <div [hidden]="!accepted" class="form-valid">
+          <p>
+            Login Successful!
+          </p>
+        </div>
       </div>
-    </div>
-    <div>
-      <button type="button" (click)="newUser()">
-        Clear
-      </button>
-      <button type="submit">
-        Submit
-      </button>
-    </div>
-  </form>
-</div>
-<div *ngIf="submitted && !appState.get('isAuthenticated')">
-  <p [hidden]="accepted">
-    Waiting on a response from the server...
-  </p>
-  <div [hidden]="!accepted">
-    <p>
-      Login Successful!
-    </p>
-  </div>
+    </md-card-content>
+  </md-card>
 </div>
 <div *ngIf="appState.get('isAuthenticated')">
-  <h1>Hello, user</h1>
+  <h1 class="section-header">Hello, user</h1>
   <p>{{ message }}</p>
   <p>
     You are currently logged in. To log out, use the button below.
   </p>
   <div>
-    <button (click)="logout()">Log Out</button>
+    <button md-raised-button color="primary" (click)="logout()">Log Out</button>
   </div>
 </div>
 <div *ngIf="!appState.get('isAuthenticated')">
