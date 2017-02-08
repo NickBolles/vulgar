@@ -7,6 +7,7 @@ import { createInputTransfer,
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule, XHRBackend } from '@angular/http';
 import { RouterModule } from '@angular/router';
+import { MaterialModule } from "@angular/material";
 
 /*
  * Platform and Environment providers/directives/pipes
@@ -65,7 +66,8 @@ type StoreType = {
     LoginModule,
     ReactiveFormsModule,
     RegisterModule,
-    RouterModule.forRoot(ROUTES, { useHash: true })
+    RouterModule.forRoot(ROUTES, { useHash: true }),
+    MaterialModule.forRoot()
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection
     APP_PROVIDERS,
