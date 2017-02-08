@@ -1,1 +1,10 @@
 /*styles for home content only*/
+
+.local-state-form {
+  width: 100%;
+  display: flex;
+}
+
+.local-state-form md-input-container {
+  flex: 1 1 auto;
+}
