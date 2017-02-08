@@ -1,10 +1,12 @@
-<h3>Admin Dash</h3>
-<nav>
-  <a routerLink="./" routerLinkActive="active"
+<h3 class="section-header">Admin Dash</h3>
+<md-toolbar color="primary">
+  <button md-button routerLink="./" routerLinkActive="active"
      [routerLinkActiveOptions]="{ exact: true }">
     Dashboard
-  </a>
-  <a routerLink="./issues" routerLinkActive="active">Manage Issues</a>
-  <a routerLink="./users" routerLinkActive="active">Manage Users</a>
-</nav>
-<router-outlet></router-outlet>
+  </button>
+  <button md-button routerLink="./issues" routerLinkActive="active">Manage Issues</button>
+  <button md-button routerLink="./users" routerLinkActive="active">Manage Users</button>
+</md-toolbar>
+<div class="padding">
+  <router-outlet></router-outlet>
+</div>
