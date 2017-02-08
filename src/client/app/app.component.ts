@@ -17,79 +17,12 @@ import { ChatModule } from './chat';
   styleUrls: [
     '../sass/main.scss'
   ],
-  template: `
-    <nav>
-      <span>
-        <a [routerLink]=" ['./'] ">
-          Index
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./home'] ">
-          Home
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./detail'] ">
-          Detail
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./todo'] ">
-          Todo
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./admin'] ">
-          Admin
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./login'] ">
-          Login
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./register'] ">
-          Register
-        </a>
-      </span>
-      |
-      <span>
-        <a [routerLink]=" ['./about'] ">
-          About
-        </a>
-      </span>
-    </nav>
-
-    <main>
-      <router-outlet></router-outlet>
-    </main>
-
-    <vu-chat></vu-chat>
-
-    <pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
-
-    <footer>
-      <span>{{ name }} by <a [href]="url">{{ author }}</a></span>
-      <div>
-        <a [href]="url">
-          <img [src]="appLogo" width="25%">
-        </a>
-      </div>
-    </footer>
-  `
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   public appLogo = 'assets/img/author-logo.gif';
-  public author = '@datatype_void'
-  public name = 'Angular 2 MEAN Webpack Starter';
+  public author = '@datatype_void';
+  public name = 'MEAN Starter';
   public url = 'https://twitter.com/datatype_void';
 
   constructor(private appState: AppState, private authService: AuthService) {

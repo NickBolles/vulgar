@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  template: `
-    <p>Manage your issues here</p>
-  `
+  templateUrl: './manage-issues.template.html'
 })
 
 export class ManageIssuesComponent { }

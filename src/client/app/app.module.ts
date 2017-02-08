@@ -22,7 +22,7 @@ import { ENV_PROVIDERS } from './environment';
 import { HomeComponent } from './home';
 import { LoginModule } from './login';
 import { NoContentComponent } from './no-content';
-import { RegisterComponent, RegisterRoutingModule } from './register';
+import { RegisterModule } from './register';
 import { ROUTES } from './app.routes';
 import { XLarge } from './home/x-large';
 
@@ -54,7 +54,6 @@ type StoreType = {
     AppComponent,
     HomeComponent,
     NoContentComponent,
-    RegisterComponent,
     XLarge
   ],
   imports: [ // import Angular's modules
@@ -65,7 +64,7 @@ type StoreType = {
     HttpModule,
     LoginModule,
     ReactiveFormsModule,
-    RegisterRoutingModule,
+    RegisterModule,
     RouterModule.forRoot(ROUTES, { useHash: true })
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection

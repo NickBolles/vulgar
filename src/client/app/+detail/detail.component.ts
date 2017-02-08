@@ -2,10 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'detail',
-  template: `
-    <h1>Hello from Detail</h1>
-    <router-outlet></router-outlet>
-  `
+  templateUrl: './detail.template.html'
 })
 export class DetailComponent {
   constructor() {

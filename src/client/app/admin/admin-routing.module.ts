@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { AdminComponent } from './admin.component';
-import { AdminDashComponent } from './admin-dash.component';
-import { ManageIssuesComponent } from './manage-issues.component';
-import { ManageUsersComponent } from './manage-users.component';
+import { AdminDashComponent } from './dash/dash.component';
+import { ManageIssuesComponent } from './manage-issues/manage-issues.component';
+import { ManageUsersComponent } from './manage-users/manage-users.component';
 
 import { AdminGuard } from '../shared/services';
 

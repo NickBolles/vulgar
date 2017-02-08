@@ -12,15 +12,7 @@ console.log('`About` component loaded asynchronously');
   selector: 'about',
   styles: [`
   `],
-  template: `
-    <h1>About</h1>
-    <div>
-      <h3>
-        david.r.niciforovic@gmail.com
-      </h3>
-    </div>
-    <pre>this.localState = {{ localState | json }}</pre>
-  `
+  templateUrl: './about.template.html'
 })
 export class AboutComponent {
   localState: any;
