@@ -1,40 +1,30 @@
 <div class="container">
 
   <!-- HEADER AND TODO COUNT -->
-  <div class="jumbotron text-center">
-      <h1>Todo <span class="label label-info">{{todos.length}}</span></h1>
-  </div>
+      <h1 class="section-header">Todo</h1>
 
   <!-- TODO LIST -->
-  <div id="todo-list" class="row">
-      <div class="col-sm-4 col-sm-offset-4">
+  <md-card id="todo-list" class="row">
+    <md-list>
+        <!-- LOOP OVER THE TODOS IN $scope.todos -->
+        <md-list-item *ngFor="let todo of todos">
+              <md-checkbox (click)="deleteTodo(todo._id)" ></md-checkbox>
+                {{ todo.text }}
+        </md-list-item>
 
-          <!-- LOOP OVER THE TODOS IN $scope.todos -->
-          <div class="checkbox" *ngFor="let todo of todos">
-              <label>
-                  <input type="checkbox" (click)="deleteTodo(todo._id)" bind-checked="false">
-                  {{ todo.text }}
-              </label>
-          </div>
+    </md-list>
+    <form>
+            <!-- BIND THIS VALUE TO todoData.text IN ANGULAR -->
+          <md-input-container>
+            <input md-input type="text" name="todo" placeholder="Enter a New TODO" [(ngModel)]="todoData.text" required>
+          </md-input-container>
 
-      </div>
-  </div>
+        <!-- createToDo() WILL CREATE NEW TODOS -->
+        <button md-raised-button color="primary" type="submit"
+          (click)="createTodo()">Add</button>
+    </form>
+  </md-card>
 
   <!-- FORM TO CREATE TODOS -->
-  <div id="todo-form" class="row">
-      <div class="col-sm-8 col-sm-offset-2 text-center">
-          <form>
-              <div class="form-group">
-
-                  <!-- BIND THIS VALUE TO todoData.text IN ANGULAR -->
-                  <input type="text" name="todo" class="form-control input-lg text-center" placeholder="I want to buy a puppy that will love me forever" [(ngModel)]="todoData.text" required>
-              </div>
-
-              <!-- createToDo() WILL CREATE NEW TODOS -->
-              <button type="submit" class="btn btn-primary btn-lg"
-                (click)="createTodo()">Add</button>
-          </form>
-      </div>
-  </div>
 
 </div>

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { MaterialModule } from "@angular/material";
 
 import { AuthGuard } from '../shared/services';
 
@@ -26,7 +27,8 @@ export const routes = [{
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    MaterialModule.forRoot()
   ]
 })
 
