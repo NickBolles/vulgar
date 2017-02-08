@@ -1,80 +1,103 @@
-<div *ngIf="!submitted && !appState.get('isAuthenticated')">
-  <h1>Register</h1>
-  <form *ngIf="active" [formGroup]="registerForm" novalidate (ngSubmit)="processUserData()">
-    <div>
-      <div>
-        <label for="">Username</label>
-        <input type="text" validateUsername="username" formControlName="username">
-        <small [hidden]="registerForm.controls.username.valid || (registerForm.controls.username.pristine && !submitted)" *ngIf="registerForm.controls.username.errors !== null && registerForm.controls.username.errors.minlength">
-          Username is required (minimum 3 characters).
-        </small>
-        <small [hidden]="registerForm.controls.username.valid || (registerForm.controls.username.pristine && !submitted)" *ngIf="registerForm.controls.username.errors !== null && registerForm.controls.username.errors.usernameTaken === true">
-          Username already taken.
-        </small>
-      </div>
+<div *ngIf="!appState.get('isAuthenticated')">
+  <h1 class="section-header">Register</h1>
+  <md-card>
+    <md-card-content>
+      <form *ngIf="active" [formGroup]="registerForm" novalidate (ngSubmit)="processUserData()">
 
-      <div>
-        <label for="">Email</label>
-        <input type="email" formControlName="email">
-        <small [hidden]="registerForm.controls.email.valid || (registerForm.controls.email.pristine && !submitted)" *ngIf="registerForm.controls.email.errors !== null && registerForm.controls.email.errors.minlength">
-          Email is required (minimum 5 characters).
-        </small>
-        <small [hidden]="registerForm.controls.email.valid || (registerForm.controls.email.pristine && !submitted)" *ngIf="registerForm.controls.email.errors !== null && registerForm.controls.email.errors.pattern">
-          Email not of valid form.
-        </small>
-      </div>
+        <div>
+          <md-input-container>
+            <input md-input type="text" validateUsername="username" formControlName="username" placeholder="Username">
+          </md-input-container>
+          <small class="form-error"
+            [hidden]="registerForm.controls.username.valid || (registerForm.controls.username.pristine && !submitted)"
+            *ngIf="registerForm.controls.username.errors !== null && registerForm.controls.username.errors.minlength">
+            Username is required (minimum 3 characters).
+          </small>
+          <small class="form-error"
+            [hidden]="registerForm.controls.username.valid || (registerForm.controls.username.pristine && !submitted)"
+            *ngIf="registerForm.controls.username.errors !== null && registerForm.controls.username.errors.usernameTaken === true">
+            Username already taken.
+          </small>
+        </div>
 
-      <div>
-        <label for="">Password</label>
-        <input type="password" validateEqual="confirmPassword" reverse="true" formControlName="password">
-        <small [hidden]="registerForm.controls.password.valid || (registerForm.controls.password.pristine && !submitted)" *ngIf="registerForm.controls.password.errors !== null && registerForm.controls.password.errors.minlength">
-          Password is required (minimum 8 characters).
-        </small>
-      </div>
+        <div>
+          <md-input-container>
+            <input md-input type="email" formControlName="email" placeholder="Email">
+          </md-input-container>
+          <small class="form-error"
+                 [hidden]="registerForm.controls.email.valid || (registerForm.controls.email.pristine && !submitted)"
+                 *ngIf="registerForm.controls.email.errors !== null && registerForm.controls.email.errors.minlength">
+            Email is required (minimum 5 characters).
+          </small>
+          <small class="form-error"
+                 [hidden]="registerForm.controls.email.valid || (registerForm.controls.email.pristine && !submitted)"
+                 *ngIf="registerForm.controls.email.errors !== null && registerForm.controls.email.errors.pattern">
+            Email not of valid form.
+          </small>
+        </div>
 
-      <div>
-        <label for="">Confirm Password</label>
-        <input type="password" validateEqual="password" formControlName="confirm">
-        <small [hidden]="registerForm.controls.confirm.valid || (registerForm.controls.confirm.pristine && !submitted)" *ngIf="registerForm.controls.confirm.errors !== null && registerForm.controls.confirm.errors.minlength">
-          Password is required (minimum 8 characters).
-        </small>
-        <small [hidden]="registerForm.controls.confirm.valid || (registerForm.controls.confirm.pristine && !submitted)" *ngIf="registerForm.controls.confirm.errors !== null && registerForm.controls.confirm.errors.validateEqual === false">
-          Passwords must match.
-        </small>
+        <div>
+          <md-input-container>
+            <input md-input type="password" validateEqual="confirmPassword" reverse="true" formControlName="password"
+                   placeholder="Password">
+          </md-input-container>
+          <small class="form-error"
+            [hidden]="registerForm.controls.password.valid || (registerForm.controls.password.pristine && !submitted)"
+            *ngIf="registerForm.controls.password.errors !== null && registerForm.controls.password.errors.minlength">
+            Password is required (minimum 8 characters).
+          </small>
+        </div>
+
+        <div>
+          <md-input-container>
+            <input md-input type="password" validateEqual="password" formControlName="confirm"
+                   placeholder="Confirm Password">
+          </md-input-container>
+          <small class="form-error"
+            [hidden]="registerForm.controls.confirm.valid || (registerForm.controls.confirm.pristine && !submitted)"
+            *ngIf="registerForm.controls.confirm.errors !== null && registerForm.controls.confirm.errors.minlength">
+            Password is required (minimum 8 characters).
+          </small>
+          <small class="form-error"
+            [hidden]="registerForm.controls.confirm.valid || (registerForm.controls.confirm.pristine && !submitted)"
+            *ngIf="registerForm.controls.confirm.errors !== null && registerForm.controls.confirm.errors.validateEqual === false">
+            Passwords must match.
+          </small>
+        </div>
+        <div>
+          <button md-button color="warn" (click)="newUser()">
+            Clear
+          </button>
+          <button md-raised-button color="primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+      <div [hidden]="!error.state" class="form-error">
+        <p>
+          Registration failure! {{ error.message }}
+        </p>
       </div>
-    </div>
-    <div [hidden]="!error.state">
-      <p>
-        Registration failure! {{ error.message }}
-      </p>
-    </div>
-    <div>
-      <button type="button" (click)="newUser()">
-        Clear
-      </button>
-      <button type="submit">
-        Submit
-      </button>
-    </div>
-  </form>
-</div>
-<div *ngIf="submitted && !appState.get('isAuthenticated')">
-  <p [hidden]="accepted">
-    Waiting on a response from the server...
-  </p>
-  <div [hidden]="!accepted">
-    <p>
-      Registration Successful!
-    </p>
-  </div>
+      <div *ngIf="submitted && !appState.get('isAuthenticated')">
+        <p [hidden]="accepted">
+          Waiting on a response from the server...
+        </p>
+        <div [hidden]="!accepted" class="form-valid">
+          <p>
+            Registration Successful!
+          </p>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
 </div>
 <div *ngIf="appState.get('isAuthenticated')">
-  <h1>Hello, user</h1>
+  <h1 class="section-header">Hello, user</h1>
   <p>
     You are currently logged in. To create a new account please log out first.
   </p>
   <div>
-    <button (click)="logout()">Log Out</button>
+    <button md-raised-button color="primary" (click)="logout()">Log Out</button>
   </div>
 </div>
 <div *ngIf="!appState.get('isAuthenticated')">

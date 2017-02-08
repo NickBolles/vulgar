@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 
 import { RegisterRoutingModule } from "./register-routing.module";
 import { RegisterComponent } from "./register.component";
+import { MaterialModule } from "@angular/material";
 
 
 @NgModule({
@@ -11,7 +12,8 @@ import { RegisterComponent } from "./register.component";
     RegisterRoutingModule,
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MaterialModule.forRoot()
   ],
   declarations: [
     RegisterComponent
