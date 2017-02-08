@@ -1,7 +1,15 @@
 /**
  * Basic typography style for copy text
  */
+@import '~@angular/material/core/theming/theming';
+@import '../themes/_default.scss';
+
 body {
   color: $text-color;
-  font: normal 125% / 1.4 $text-font-stack;
+
+  font: normal 125%/1.4 $text-font-stack;
+}
+
+.section-header {
+  color: md-color(map-get($theme, accent), A700);
 }

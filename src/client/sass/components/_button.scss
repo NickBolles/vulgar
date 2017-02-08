@@ -1,10 +1,15 @@
 // -----------------------------------------------------------------------------
 // This file contains all styles related to the button component.
 // -----------------------------------------------------------------------------
+
+@import '~@angular/material/core/theming/theming';
+@import '../themes/_default.scss';
+
 button.active{
-  background: #fff;
-  color: #009688;
+  background: md-color(map-get($theme, accent), lighter);
+  color: md-color(map-get($theme, accent), lighter-contrast);
 }
 button.active:hover{
-  color: #fff;
+  background: md-color(map-get($theme, accent), 200);
+  color: md-color(map-get(map-get($theme, accent), contrast), 200);
 }

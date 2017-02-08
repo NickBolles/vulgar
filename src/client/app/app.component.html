@@ -1,66 +1,56 @@
-<nav>
-  <span>
-    <a [routerLink]=" ['./'] ">
-      Index
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./home'] ">
-      Home
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./detail'] ">
-      Detail
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./todo'] ">
-      Todo
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./admin'] ">
-      Admin
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./login'] ">
-      Login
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./register'] ">
-      Register
-    </a>
-  </span>
-  |
-  <span>
-    <a [routerLink]=" ['./about'] ">
-      About
-    </a>
-  </span>
-</nav>
+<md-toolbar color="primary">
+        <button class="app-link" md-button [routerLink]=" ['./'] ">
+          <img [src]="appLogo" >
+          {{ name }}
+        </button>
+        <span class="fill"></span>
 
-<main>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./home'] ">
+          Home
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./detail'] ">
+          Detail
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./todo'] ">
+          Todo
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./admin'] ">
+          Admin
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./login'] ">
+          Login
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./register'] ">
+          Register
+        </button>
+        <button md-button routerLinkActive="active" [routerLink]=" ['./about'] ">
+          About
+        </button>
+</md-toolbar>
+
+<main class="padding">
+  <md-progress-bar mode="indeterminate" color="primary" *ngIf="loading">
+  </md-progress-bar>
   <router-outlet></router-outlet>
 </main>
 
-<vu-chat></vu-chat>
 
-<pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
+<div class="app-state-footer">
+  <h3 style="padding-left: 2em;">App State</h3>
+  <vu-chat></vu-chat>
+  <md-card x-large>
+    <md-card-title>Local State</md-card-title>
+    <md-card-content>
+      <pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
+    </md-card-content>
+  </md-card>
+</div>
 
 <footer>
-  <span>{{ name }} by <a [href]="url">{{ author }}</a></span>
   <div>
     <a [href]="url">
       <img [src]="appLogo" width="25%">
     </a>
   </div>
+  <span>{{ name }} by <a [href]="url">{{ author }}</a></span>
 </footer>

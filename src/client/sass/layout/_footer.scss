@@ -2,11 +2,20 @@
 // This file contains all styles related to the footer of the site/application.
 // -----------------------------------------------------------------------------
 
+@import '~@angular/material/core/theming/theming';
+@import '../themes/_default.scss';
+
 footer{
   flex: 0 0 60px;
   padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: md-color(map-get($theme, primary));
+}
+
+.app-state-footer {
+  background: md-color(map-get($theme, primary), 400);
+  padding: 8px;
+  margin-top: 32px;
 }
