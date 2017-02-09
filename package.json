@@ -14,50 +14,66 @@
   "homepage": "https://github.com/datatypevoid/vulgar",
   "license": "MIT",
   "scripts": {
+
     "build": "npm run build:dev",
-    "prebuild:dev": "npm run clean:dist",
-    "build:dev": "webpack --config config/webpack/client.dev.js --progress --profile",
-    "build:docker": "npm run build:prod && docker build -t angular2-webpack-start:latest .",
-    "prebuild:prod": "npm run clean:dist",
-    "build:prod": "webpack --config config/webpack/client.prod.js  --progress --profile --bail",
+        "prebuild:dev": "npm run clean:dist",
+      "build:dev": "webpack --config config/webpack/client.dev.js --progress --profile",
+      "build:docker": "npm run build:prod && docker build -t angular2-webpack-start:latest .",
+        "prebuild:prod": "npm run clean:dist",
+      "build:prod": "webpack --config config/webpack/client.prod.js  --progress --profile --bail",
+
     "ci": "npm run lint && npm test && npm run e2e",
+
     "clean": "npm cache clean && npm run rimraf -- node_modules docs coverage dist",
-    "clean:dist": "npm run rimraf -- dist/client",
-    "preclean:install": "npm run clean",
-    "clean:install": "npm set progress=false && npm install",
-    "preclean:start": "npm run clean",
-    "clean:start": "npm start",
+      "clean:dist": "npm run rimraf -- dist/client",
+        "preclean:install": "npm run clean",
+      "clean:install": "npm set progress=false && npm install",
+        "preclean:start": "npm run clean",
+      "clean:start": "npm start",
+
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
+
     "docker": "docker",
-    "pree2e": "npm run webdriver:update -- --standalone",
+
+      "pree2e": "npm run webdriver:update -- --standalone",
     "e2e": "npm run protractor",
-    "e2e:live": "npm run e2e -- --elementExplorer",
+      "e2e:live": "npm run e2e -- --elementExplorer",
+
     "fix:line-endings": "find . \\( -type f -and -not -path '*/node_modules/*' \\) -exec dos2unix {} \\;",
+
     "lint": "npm run tslint \"src/**/*.ts\"",
-    "lint:client": "npm run tslint \"src/client/**/*.ts\"",
-    "lint:server": "npm run tslint \"src/server/**/*.ts\"",
+      "lint:client": "npm run tslint \"src/client/**/*.ts\"",
+      "lint:server": "npm run tslint \"src/server/**/*.ts\"",
+
     "protractor": "protractor",
     "rimraf": "rimraf",
+
     "server": "npm run server:dev",
-    "server:dev": "webpack-dev-server --config config/webpack/client.dev.js --progress --profile --watch --content-base src/",
-    "server:dev:hmr": "npm run server:dev -- --inline --hot",
+      "server:dev": "webpack-dev-server --config config/webpack/client.dev.js --progress --profile --watch --content-base src/",
+      "server:dev:hmr": "npm run server:dev -- --inline --hot",
+
     "start": "concurrently --kill-others --raw \"npm run server:dev\" \"npm run watch\"",
+
     "test": "karma start",
     "tslint": "tslint",
     "typedoc": "typedoc",
+
     "watch": "npm run watch:dev",
-    "watch:dev": "npm run build:dev -- --watch",
-    "watch:dev:hmr": "npm run watch:dev -- --hot",
-    "watch:test": "npm run test -- --auto-watch --no-single-run",
-    "watch:prod": "npm run build:prod -- --watch",
+      "watch:dev": "npm run build:dev -- --watch",
+        "watch:dev:hmr": "npm run watch:dev -- --hot",
+      "watch:test": "npm run test -- --auto-watch --no-single-run",
+      "watch:prod": "npm run build:prod -- --watch",
+
     "webdriver-manager": "webdriver-manager",
     "webpack": "webpack",
     "webpack-dev-server": "webpack-dev-server",
+
     "webdriver:update": "npm run webdriver-manager update",
     "webdriver:start": "npm run webdriver-manager start",
-    "preversion": "npm test",
+
+      "preversion": "npm test",
     "version": "npm run build",
-    "postversion": "git push && git push --tags"
+      "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "@angular/common": "^2.4.6",
@@ -175,7 +191,7 @@
     "tslint": "^4.0.0-dev.0",
     "tslint-loader": "^2.1.3",
     "typedoc": "^0.5.0",
-    "typescript": "^2.0.6",
+    "typescript": "^2.1.6",
     "url-loader": "^0.5.7",
     "webpack": "^2.2.0",
     "webpack-dev-middleware": "^1.6.1",
