@@ -13,16 +13,9 @@ import nodemon from 'nodemon';
 import path from 'path';
 import scsslint from 'gulp-scss-lint';
 import webpack from 'webpack';
-
-/**
- * Webpack Merge
- */
-import webpackMerge from 'webpack-merge';
-
-/**
- * Common server webpack configuration for development and production
- */
-import commonConfig from './webpack/server.common';
+import mocha from 'gulp-mocha';
+import gutil from 'gulp-util';
+import runSequence from 'run-sequence';
 
 /**
  * Development webpack configuration
@@ -121,14 +114,25 @@ gulp.task('watch:server:prod', () => {
  * Gulp task for building the server using the test configuration
  */
 gulp.task('build:server:test', (done) => {
-  webpack(testConfig()).run(onBuild(done));
+  webpack(testConfig()).run((err, stats) => {
+    onBuild(done)(err,stats)
+  });
 });
 
-gulp.task('watch:server:test', () => {
+gulp.task('watch:server:test', (done) => {
   webpack(testConfig()).watch(100, (err, stats) => {
     onBuild()(err, stats);
-    nodemon.restart();
+    runSequence('test:server', done);
   });
+});
+
+
+gulp.task('test:server', () => {
+  return gulp.src(['dist/spec.bundle.js'])
+  .pipe(mocha({
+    reporter: 'spec'
+  }))
+  .on('error', gutil.log);
 });
 
 /**
