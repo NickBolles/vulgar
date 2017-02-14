@@ -7,6 +7,12 @@
  */
 const helpers = require('../helpers.utils');
 const path = require('path');
+const commonConfig = require('./client.common.js');
+
+/**
+ * Webpack Merge
+ */
+const webpackMerge = require('webpack-merge');
 
 /**
  * Webpack Plugins
@@ -32,8 +38,7 @@ const ENV = process.env.ENV = process.env.NODE_ENV = 'test';
  * @see http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function(options) {
-
-  return {
+  return webpackMerge(commonConfig({ env: ENV }), {
 
     /**
      * Developer tool to enhance debugging
@@ -45,6 +50,56 @@ module.exports = function(options) {
      * @see https://github.com/webpack/karma-webpack#source-maps
      */
     devtool: 'inline-source-map',
+
+    /**
+     * Options affecting the output of the compilation process
+     *
+     * @see: http://webpack.github.io/docs/configuration.html#output
+     */
+    output: {
+
+      /**
+       * The output directory as an absolute path (required)
+       *
+       * @see: http://webpack.github.io/docs/configuration.html#output-path
+       */
+      path: helpers.root('dist/client'),
+
+      /**
+       * Specifies the name of each output file on disk
+       * IMPORTANT: You must not specify an absolute path here!
+       *
+       * @see: http://webpack.github.io/docs/configuration.html#output-filename
+       */
+      filename: '[name].spec.bundle.js',
+
+      /**
+       * The filename of the SourceMaps for the JavaScript files
+       * They are inside the output.path directory
+       *
+       * @see: http://webpack.github.io/docs/configuration.html#output-sourcemapfilename
+       */
+      sourceMapFilename: '[name].map',
+
+      /**
+       * The filename of non-entry chunks as relative path inside the
+       * output.path directory.
+       *
+       * @see: http://webpack.github.io/docs/configuration.html#output-chunkfilename
+       */
+      chunkFilename: '[id].chunk.js',
+
+      /**
+       * TODO: Add documentation
+       */
+      library: 'ac_[name]',
+
+      /**
+       * TODO: Add documentation
+       */
+      libraryTarget: 'var'
+
+    },
 
     /**
      *  Options affecting the resolving of modules.
@@ -61,8 +116,10 @@ module.exports = function(options) {
 
       /**
        * Ensure that root is our client source directory
+       *
+       * Not needed with Karma
        */
-      root: [ path.resolve(__dirname, 'client/src'), 'node_modules' ]
+      // root: [ path.resolve(__dirname, 'client/src'), 'node_modules' ]
     },
 
     /**
@@ -288,6 +345,6 @@ module.exports = function(options) {
       setImmediate: false
     }
 
-  }
+  });
 
 };
