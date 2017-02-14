@@ -161,7 +161,7 @@ module.exports = function(options) {
         {
           test: /\.scss$/,
           loader: 'style!css!postcss-loader!sass',
-          exclude: [ helpers.root('src/client/index.html') ] },
+          exclude: [ helpers.root('src/client/index.html') ],
         },
 
         /**

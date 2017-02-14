@@ -56,3 +56,5 @@ function onListening() {
     console.log(`Wizardry is afoot on ${bind}`);
   }
 }
+
+export default server;
