@@ -6,10 +6,10 @@
 @import '../themes/_default.scss';
 
 button.active{
-  background: md-color(map-get($theme, accent), lighter);
-  color: md-color(map-get($theme, accent), lighter-contrast);
+  background: mat-color(map-get($theme, accent), lighter);
+  color: mat-color(map-get($theme, accent), lighter-contrast);
 }
 button.active:hover{
-  background: md-color(map-get($theme, accent), 200);
-  color: md-color(map-get(map-get($theme, accent), contrast), 200);
+  background: mat-color(map-get($theme, accent), 200);
+  color: mat-color(map-get(map-get($theme, accent), contrast), 200);
 }

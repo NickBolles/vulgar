@@ -11,11 +11,11 @@ footer{
   display: flex;
   align-items: center;
   justify-content: center;
-  background: md-color(map-get($theme, primary));
+  background: mat-color(map-get($theme, primary));
 }
 
 .app-state-footer {
-  background: md-color(map-get($theme, primary), 400);
+  background: mat-color(map-get($theme, primary), 400);
   padding: 8px;
   margin-top: 32px;
 }

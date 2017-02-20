@@ -67,7 +67,7 @@ type StoreType = {
     ReactiveFormsModule,
     RegisterModule,
     RouterModule.forRoot(ROUTES, { useHash: true }),
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection
     APP_PROVIDERS,
