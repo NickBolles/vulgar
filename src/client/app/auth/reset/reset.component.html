@@ -1,0 +1,50 @@
+<div>
+  <h1 class="section-header">Reset Password</h1>
+  <md-card>
+    <md-card-content>
+      <form *ngIf="!accepted" [formGroup]="resetForm" novalidate (ngSubmit)="processInput()">
+        <h4>Enter {{!resetToken ? 'your current and' : ''}} your new password</h4>
+        <div>
+          <div *ngIf="!resetToken">
+            <md-input-container>
+              <input md-input type="password" name="password" formControlName="password"
+                     placeholder="Current Password">
+            </md-input-container>
+          </div>
+          <div>
+            <md-input-container>
+              <input md-input type="password" name="newPassword" formControlName="newPassword"
+                     placeholder="Password">
+            </md-input-container>
+            <small class="form-error" *ngIf="formErrors.newPassword">
+              {{ formErrors.newPassword }}
+            </small>
+          </div>
+
+          <div>
+            <md-input-container>
+              <input md-input type="password" name="confirm" formControlName="confirm"
+                     placeholder="Confirm Password">
+            </md-input-container>
+            <small class="form-error" *ngIf="formErrors.confirm">
+              {{ formErrors.confirm }}
+            </small>
+          </div>
+        </div>
+        <div>
+          <button md-raised-button color="primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+      <div *ngIf="submitted">
+        <p [hidden]="!active">
+          {{message}}
+        </p>
+        <p [hidden]="active" [ngClass]="accepted ? 'form-valid': 'form-error'">
+          {{message}}
+        </p>
+      </div>
+    </md-card-content>
+  </md-card>
+</div>
