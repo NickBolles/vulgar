@@ -13,7 +13,7 @@
         <form class="local-state-form" (ngSubmit)="submitState(localState.value)" autocomplete="off">
           <md-input-container>
             <input
-              md-input
+              mdInput
               [value]="localState.value"
               (input)="localState.value = $event.target.value"
               placeholder="Submit Local State to App State"

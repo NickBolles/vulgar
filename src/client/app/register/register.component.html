@@ -6,7 +6,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="text" validateUsername="username" formControlName="username" placeholder="Username">
+            <input mdInput type="text" validateUsername="username" formControlName="username" placeholder="Username">
           </md-input-container>
           <small class="form-error"
             [hidden]="registerForm.controls.username.valid || (registerForm.controls.username.pristine && !submitted)"
@@ -22,7 +22,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="email" formControlName="email" placeholder="Email">
+            <input mdInput type="email" formControlName="email" placeholder="Email">
           </md-input-container>
           <small class="form-error"
                  [hidden]="registerForm.controls.email.valid || (registerForm.controls.email.pristine && !submitted)"
@@ -38,7 +38,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="password" validateEqual="confirmPassword" reverse="true" formControlName="password"
+            <input mdInput type="password" validateEqual="confirmPassword" reverse="true" formControlName="password"
                    placeholder="Password">
           </md-input-container>
           <small class="form-error"
@@ -50,7 +50,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="password" validateEqual="password" formControlName="confirm"
+            <input mdInput type="password" validateEqual="password" formControlName="confirm"
                    placeholder="Confirm Password">
           </md-input-container>
           <small class="form-error"

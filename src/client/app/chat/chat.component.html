@@ -3,21 +3,22 @@
   <md-card-content>
     <form autocomplete="off">
       <md-input-container>
-        <input md-input placeholder="User Handle" [(ngModel)]="handle"
+        <input mdInput placeholder="User Handle" [(ngModel)]="handle"
                [disabled]="connected" name="chatUser">
       </md-input-container>
       <button md-raised-button color="primary" *ngIf="connected" (click)="disconnect()">Disconnect</button>
-      <button md-raised-button color="primary" *ngIf="!connected"(click)="connect()">Connect</button>
+      <button md-raised-button color="primary" *ngIf="!connected" (click)="connect()">Connect</button>
     </form>
     <form (ngSubmit)="send()" autocomplete="off">
       <md-input-container>
-        <input md-input placeholder="Enter a Message" [(ngModel)]="message"
+        <input mdInput placeholder="Enter a Message" [(ngModel)]="message"
                [disabled]="!connected" autofocus name="chatMessage">
       </md-input-container>
       <button md-raised-button color="primary" [disabled]="!connected">
         Send
       </button>
-    </form>  </md-card-content>
+    </form>
+  </md-card-content>
   <md-card>
     <md-card-title>Message Feed</md-card-title>
     <md-card-content>

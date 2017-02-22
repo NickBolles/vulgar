@@ -8,7 +8,7 @@
         <div>
           <div>
             <md-input-container>
-              <input md-input type="text" formControlName="username" placeholder="Username or Email">
+              <input mdInput type="text" formControlName="username" placeholder="Username or Email">
             </md-input-container>
             <small class="form-error"
                   [hidden]="loginForm.controls.username.valid || (loginForm.controls.username.pristine && !submitted)">
@@ -18,7 +18,7 @@
 
           <div>
             <md-input-container>
-              <input md-input type="password" formControlName="password" placeholder="Password">
+              <input mdInput type="password" formControlName="password" placeholder="Password">
             </md-input-container>
             <small class="form-error"
                   [hidden]="loginForm.controls.password.valid || (loginForm.controls.password.pristine && !submitted)">

@@ -13,7 +13,7 @@ import { MaterialModule } from "@angular/material";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [
     ChatComponent
