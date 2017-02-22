@@ -74,4 +74,16 @@ export class AuthService {
                           JSON.stringify(user),
                           HEADER);
   }
+
+  forgot(query) {
+    return this.http.post(`${ROUTE_URI}forgot`,
+      JSON.stringify(query),
+      HEADER);
+  }
+
+  reset(query) {
+    return this.http.post(`${ROUTE_URI}reset`,
+      JSON.stringify(query),
+      HEADER);
+  }
 }
