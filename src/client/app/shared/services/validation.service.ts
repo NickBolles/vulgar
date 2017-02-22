@@ -1,6 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 
+import {Observable} from 'rxjs/Rx';
+
 const HEADER = {
   headers: new Headers({
     'Content-Type': 'application/json'
@@ -24,9 +26,7 @@ export class ValidationService {
   // Reference: https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md#3-types
   // Here we intend the constructor function to be called with the
   // `Http` parameter
-  constructor(public http:Http) {
-
-  }
+  constructor(public http:Http) { }
 
   validateUsername(username) {
     return this.http.get(`${ROUTE_URI}username/${username}`, HEADER)
@@ -35,6 +35,19 @@ export class ValidationService {
         // TODO: Remove this DEBUG statement
         console.log(res);
         return res.json();
+      })
+      .catch((err) => {
+        return err.status === 409 ? Observable.of({'usernameTaken': true})
+          : Observable.of(null);
+      })
+  }
+  validateEmail(email) {
+    console.log("validating ", email,`${ROUTE_URI}email/${email}`, HEADER );
+    return this.http.get(`${ROUTE_URI}email/${email}`, HEADER)
+      .map(res => res.json())
+      .catch((err) => {
+        return err.status === 409 ? Observable.of({'emailTaken': true})
+          : Observable.of(null);
       })
   }
 }
