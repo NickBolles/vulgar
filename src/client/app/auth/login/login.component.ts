@@ -131,7 +131,7 @@ export class LoginComponent {
 
   logout() {
 
-    this.authService.logout().map(res => res.json)
+    this.authService.logout()
       .subscribe((res) => {
         console.log(res);
       }, (err) => {

@@ -66,6 +66,7 @@ export class AuthService {
 
     return this.http.post(`${ROUTE_URI}logout`,
                           HEADER);
+                    .map(res => res.json());
   }
 
   register(user) {
@@ -73,17 +74,20 @@ export class AuthService {
     return this.http.post(`${ROUTE_URI}register`,
                           JSON.stringify(user),
                           HEADER);
+                    .map(res => res.json());
   }
 
   forgot(query) {
     return this.http.post(`${ROUTE_URI}forgot`,
-      JSON.stringify(query),
-      HEADER);
+                           JSON.stringify(query),
+                           HEADER)
+                    .map(res => res.json());
   }
 
   reset(query) {
     return this.http.post(`${ROUTE_URI}reset`,
-      JSON.stringify(query),
-      HEADER);
+                           JSON.stringify(query),
+                           HEADER)
+                    .map(res => res.json());
   }
 }

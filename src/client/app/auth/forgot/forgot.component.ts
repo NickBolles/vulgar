@@ -77,7 +77,7 @@ export class ForgotComponent {
         console.log(res);
 
 
-        this.message = res.json().message;
+        this.message = res.message;
 
         //todo: is this correct?
         // this.message = res.message;
