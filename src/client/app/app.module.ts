@@ -21,9 +21,8 @@ import { AppState, InternalStateType } from './app.service';
 import { ChatModule } from './chat';
 import { ENV_PROVIDERS } from './environment';
 import { HomeComponent } from './home';
-import { LoginModule } from './login';
+import { AuthModule } from './auth/';
 import { NoContentComponent } from './no-content';
-import { RegisterModule } from './register';
 import { ROUTES } from './app.routes';
 import { XLarge } from './home/x-large';
 
@@ -63,10 +62,9 @@ type StoreType = {
     ChatModule,
     FormsModule,
     HttpModule,
-    LoginModule,
     ReactiveFormsModule,
-    RegisterModule,
-    RouterModule.forRoot(ROUTES, { useHash: true }),
+    AuthModule,
+    RouterModule.forRoot(ROUTES),
     MaterialModule
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection

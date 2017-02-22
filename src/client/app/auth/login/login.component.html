@@ -2,16 +2,17 @@
   <h1 class="section-header">Login</h1>
   <md-card>
     <md-card-content>
-
-      <p>{{ message }}</p>
-      <form *ngIf="active" [formGroup]="loginForm" novalidate (ngSubmit)="processUserData()">
+      <form *ngIf="!accepted" [formGroup]="loginForm" novalidate (ngSubmit)="processUserData()">
         <div>
           <div>
             <md-input-container>
               <input md-input type="text" formControlName="username" placeholder="Username or Email">
             </md-input-container>
             <small class="form-error"
-                  [hidden]="loginForm.controls.username.valid || (loginForm.controls.username.pristine && !submitted)">
+                   *ngIf="(submitted || loginForm.controls.username.touched) &&
+                         loginForm.controls.username.invalid ||
+                         (loginForm.controls.username.errors?.required ||
+                         loginForm.controls.username.errors?.minLength)">
                   Username is required (minimum 4 characters).
             </small>
           </div>
@@ -21,7 +22,10 @@
               <input md-input type="password" formControlName="password" placeholder="Password">
             </md-input-container>
             <small class="form-error"
-                  [hidden]="loginForm.controls.password.valid || (loginForm.controls.password.pristine && !submitted)">
+                   *ngIf="(submitted || loginForm.controls.password.touched) &&
+                         loginForm.controls.password.invalid ||
+                         (loginForm.controls.password.errors?.required ||
+                         loginForm.controls.password.errors?.minLength)">
                   Password is required (minimum 8 characters).
             </small>
           </div>
@@ -34,16 +38,20 @@
             Submit
           </button>
         </div>
-      </form>
-      <div *ngIf="submitted && !appState.get('isAuthenticated')">
-        <p [hidden]="accepted">
-          Waiting on a response from the server...
-        </p>
-        <div [hidden]="!accepted" class="form-valid">
-          <p>
-            Login Successful!
-          </p>
+        <div>
+          <button md-button color="primary" type="button" [routerLink]=" ['/forgot'] ">
+            Forgot Password
+          </button>
         </div>
+      </form>
+
+      <div *ngIf="submitted">
+        <p [hidden]="!active">
+          {{message}}
+        </p>
+        <p [hidden]="active" [ngClass]="accepted ? 'form-valid': 'form-error'">
+          {{message}}
+        </p>
       </div>
     </md-card-content>
   </md-card>
@@ -64,11 +72,5 @@
     <pre>Is loginForm valid?: <br>{{loginForm.valid | json}}</pre>
     <pre>Is loginForm submitted?: <br>{{submitted | json}}</pre>
     <pre>loginForm value: <br>{{loginForm.value | json}}</pre>
-  </div>
-  <div>
-    Form changes:
-  </div>
-  <div *ngFor="let event of events">
-    <pre> {{ event | json }} </pre>
   </div>
 </div>

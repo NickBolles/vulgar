@@ -1,0 +1,98 @@
+<div *ngIf="!appState.get('isAuthenticated')">
+  <h1 class="section-header">Register</h1>
+  <md-card>
+    <md-card-content>
+      <form *ngIf="!accepted" [formGroup]="registerForm" novalidate (ngSubmit)="processUserData()">
+        <div>
+          <md-input-container>
+            <input md-input type="text" formControlName="firstName" placeholder="First Name">
+          </md-input-container>
+          <small class="form-error" *ngIf="formErrors.firstName">
+            {{ formErrors.firstName }}
+          </small>
+        </div>
+        <div>
+          <md-input-container>
+            <input md-input type="text" formControlName="lastName" placeholder="Last Name">
+          </md-input-container>
+        </div>
+        <div>
+          <md-input-container>
+            <input md-input type="text" formControlName="username" placeholder="Username">
+          </md-input-container>
+          <small class="form-error" *ngIf="formErrors.username">
+            {{ formErrors.username }}
+          </small>
+        </div>
+
+        <div>
+          <md-input-container>
+            <input md-input type="email" formControlName="email" placeholder="Email">
+          </md-input-container>
+          <small class="form-error" *ngIf="formErrors.email">
+            {{ formErrors.email }}
+          </small>
+        </div>
+
+        <div>
+          <md-input-container>
+            <input md-input type="password" name="password" formControlName="password"
+                   placeholder="Password">
+          </md-input-container>
+          <small class="form-error" *ngIf="formErrors.password">
+            {{ formErrors.password }}
+          </small>
+        </div>
+
+        <div>
+          <md-input-container>
+            <input md-input type="password" name="confirm" formControlName="confirm"
+                   placeholder="Confirm Password">
+          </md-input-container>
+          <small class="form-error" *ngIf="formErrors.confirm">
+            {{ formErrors.confirm }}
+          </small>
+        </div>
+        <div>
+          <button md-button color="warn" (click)="newUser()">
+            Clear
+          </button>
+          <button md-raised-button color="primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+      <div *ngIf="submitted">
+        <p [hidden]="!active">
+          {{message}}
+        </p>
+        <p [hidden]="active" [ngClass]="accepted ? 'form-valid': 'form-error'">
+          {{message}}
+        </p>
+      </div>
+    </md-card-content>
+  </md-card>
+</div>
+<div *ngIf="appState.get('isAuthenticated')">
+  <h1 class="section-header">Hello, user</h1>
+  <p>
+    You are currently logged in. To create a new account please log out first.
+  </p>
+  <div>
+    <button md-raised-button color="primary" (click)="logout()">Log Out</button>
+  </div>
+</div>
+<div *ngIf="!appState.get('isAuthenticated')">
+  <div>
+    <div>registerForm details:</div>
+    <pre>Is registerForm valid?: <br>{{registerForm.valid | json}}</pre>
+    <pre>Is registerForm submitted?: <br>{{submitted | json}}</pre>
+    <pre>registerForm value: <br>{{registerForm.value | json}}</pre>
+  </div>
+  <div>
+    Form changes:
+  </div>
+  <div *ngFor="let event of events">
+    <pre> {{ event | json }} </pre>
+  </div>
+</div>
