@@ -7,6 +7,7 @@ import { ActivatedRouteSnapshot,
 import { AuthService } from './auth.service';
 import { AppState } from '../../app.service';
 import { Observable } from 'rxjs/Observable';
+import { UserRole } from '../../../../shared/user.roles'
 
 @Injectable()
 export class AdminGuard implements CanActivate, CanActivateChild {
@@ -33,7 +34,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
 
     return this.authService.authenticate().map((user) => {
 
-      if(user.role !== 'admin' || user === 0) {
+      if(user.role !== UserRole.Admin || user === 0) {
 
         // Store the attempted URL for redirecting.
         this.authService.redirectUrl = url;
@@ -42,6 +43,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
         // TODO: Remove this DEBUG statement
         console.warn('User security clearance not high enough to access this content! Redirecting user to login.');
 
+        //todo: notify user
         this.router.navigate(['/login']);
 
         return false;
