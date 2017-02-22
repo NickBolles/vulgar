@@ -200,7 +200,9 @@ export class User extends PublicUser implements IUser {
           return Promise.reject('Invalid Password');
         }
       })
-      .then(this.onLogin.bind(this))
+      .then(() => {
+        return this.onLogin();
+      })
       .catch((err) => {
         console.log("Log In Failed", err);
           this.logins.push({
@@ -428,6 +430,7 @@ let userSchema = new Schema({
 
 // Register methods
 userSchema.method('login', User.prototype.login);
+userSchema.method('onLogin', User.prototype.onLogin);
 userSchema.method('generateHash', User.prototype.generateHash);
 userSchema.method('validPassword', User.prototype.validPassword);
 userSchema.method('incLoginAttempt', User.prototype.incLoginAttempt);

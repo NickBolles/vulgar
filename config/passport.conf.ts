@@ -418,7 +418,7 @@ export default function passportConf(passport) {
           console.error('unable to save user', err);
           return done(null,
             false,
-            err + err2);
+            err2);
         })
     });
   }));
