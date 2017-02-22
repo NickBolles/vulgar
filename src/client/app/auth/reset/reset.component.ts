@@ -42,7 +42,6 @@ export class ResetComponent {
 
   ngOnInit() {
     this.resetToken = this.route.snapshot.params['token'];
-    debugger;
     let user = new FormModel('', '', '', '', this.resetToken);
     let newPassword = new FormControl(user.newPassword, [<any>Validators.required, <any>Validators.minLength(8)]);
     this.resetForm = this.formBuilder.group({
@@ -65,20 +64,24 @@ export class ResetComponent {
   }
 
   processInput() {
-    if (this.resetForm.valid) {
-      let userData = { username: this.user.username,
-                       newPassword: this.resetForm.controls['newPassword'].value};
-      // Include the resetToken or the password, not both
-      if (this.resetToken) {
-        userData['resetToken'] = this.resetToken;
-      } else {
-        userData['password'] = this.resetForm.controls['password'].value
-      }
-      this.sendReset(userData);
-    } else {
-      this.submitted = true;
-      this.message = "Please complete form";
+    this.submitted = true;
+    if (this.resetForm.invalid) {
+      // Set all fields to dirty and update the error messages
+      this.setAllTouched();
+      this.onValueChanged();
+      this.message = 'Please fill out all required fields';
+      return;
     }
+
+    let userData = { username: this.user.username,
+                     newPassword: this.resetForm.controls['newPassword'].value};
+    // Include the resetToken or the password, not both
+    if (this.resetToken) {
+      userData['resetToken'] = this.resetToken;
+    } else {
+      userData['password'] = this.resetForm.controls['password'].value
+    }
+    this.sendReset(userData);
   }
 
   sendReset(query) {
@@ -95,7 +98,7 @@ export class ResetComponent {
         console.log(res);
 
 
-        this.message = res.json().message;
+        this.message = res.message;
 
         //todo: is this correct?
         // this.message = res.message;
@@ -125,12 +128,19 @@ export class ResetComponent {
       this.formErrors[field] = '';
       const control = form.get(field);
 
-      if (control && control.dirty && !control.valid) {
+      if (control && control.touched && !control.valid) {
         const messages = this.validationMessages[field];
         for (const key in control.errors) {
           this.formErrors[field] += (messages[key] + ' ') || '';
         }
       }
+    }
+  }
+
+  setAllTouched() {
+    for (const field in this.formErrors) {
+      const control = this.resetForm.get(field);
+      control.markAsTouched();
     }
   }
 

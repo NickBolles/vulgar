@@ -94,6 +94,7 @@ export class RegisterComponent {
       password: password,
       confirm: [user.confirm, [CustomValidators.equalTo(password)]]
     });
+    // todo: keep subscription and unsubscribe when the value changes
     this.registerForm.valueChanges
       .subscribe(data => this.onValueChanged(data));
     this.registerForm.statusChanges
@@ -108,7 +109,7 @@ export class RegisterComponent {
 
   logout() {
 
-    this.authService.logout().map(res => res.json)
+    this.authService.logout()
       .subscribe((res) => {
         console.log(res);
       }, (err) => {
@@ -120,9 +121,13 @@ export class RegisterComponent {
   processUserData() {
     this.submitted = true;
     if (this.registerForm.invalid) {
+      // Set all fields to dirty and update the error messages
+      this.setAllTouched();
+      this.onValueChanged();
       this.message = 'Please fill out all required fields';
       return;
     }
+
     // todo: use active flag
     this.active = true;
     this.message = 'Registering user...';
@@ -199,10 +204,8 @@ export class RegisterComponent {
             if (res && res.emailTaken && res.emailTaken === true) {
               resolve({'emailTaken': true})
             } else {
-              reject();
+              resolve();
             }
-            this.onValueChanged();
-            return res
           }, (err) => {
             console.error('Email validation error:', err);
           });
@@ -222,11 +225,8 @@ export class RegisterComponent {
             if (res && res.usernameTaken && res.usernameTaken === true) {
               resolve({'usernameTaken': true})
             } else {
-              reject();
-            }
-            this.onValueChanged();
-            return res
-          }, (err) => {
+              resolve();
+            }          }, (err) => {
             console.error('Username validation error:', err);
           });
       }, 600);
@@ -242,12 +242,19 @@ export class RegisterComponent {
       this.formErrors[field] = '';
       const control = form.get(field);
 
-      if (control && control.dirty && !control.valid) {
+      if (control && control.touched && !control.valid) {
         const messages = this.validationMessages[field];
         for (const key in control.errors) {
           this.formErrors[field] += (messages[key] + ' ') || '';
         }
       }
+    }
+  }
+
+  setAllTouched() {
+    for (const field in this.formErrors) {
+      const control = this.registerForm.get(field);
+      control.markAsTouched();
     }
   }
 
