@@ -38,7 +38,8 @@ The rest of the stack features:
 
 -	[Express](https://www.expressjs.com/) for creating robust `API`s,
 -	[Socket.io](https://www.socket.io/) for real time event-based communication.
--	[Mongoose](https://www.mongoosejs.com/) for modeling
+-	[Nodemailer](https://www.nodemailer.com/) for real time event-based communication.
+-	[Mongoose](https://www.mongoosejs.com/) for email notifications
 -	[MongoDB](https://www.mongodb.org) objects within the
 -	[NodeJS](https://nodejs.org) environment.
 
@@ -144,6 +145,7 @@ vulgar
 │   ├── config.example.json                * Example config.json file
 │   ├── config.json                        * Untracked by git by default.
 │   │                                        Required for stack to fire up.
+│   ├── emailer.conf.ts                    * Nodemailer transport and config setup
 │   ├── env.conf.ts                        * Development environment config
 │   ├── gulpfile.conf.js                   * Gulp config and task definitions
 │   ├── head.conf.js                       * Configuration for head elements
@@ -361,7 +363,33 @@ The `server.conf.js` file is expecting certain `environment` `variables` to be s
   # http://randomkeygen.com/
   # Note that you don't need to use specifically
   # this, but it will certainly suffice
-  "SESSION_SECRET" : "355FC4FE9348639B4E4FED1B8E93C"
+  "SESSION_SECRET" : "355FC4FE9348639B4E4FED1B8E93C",
+  # Settings for the email sender
+  # The TRANSPORT key is passed straight into nodeMailer 
+  # so it can be any supported transport
+  # // https://nodemailer.com/smtp/ && https://nodemailer.com/transports/
+  "EMAIL_SETTINGS": {
+    "TRANSPORT": {
+      "service": "Mailgun",
+      "auth": {
+        "user": "postmaster@mg.domainname.com",
+        "pass": "d77c50a5eda3697988d61fb684c36593"
+      },
+      "tls":{
+        "rejectUnauthorized": false
+      }
+    }
+    # Email settings can be used to hold settings for different email configs
+    # Check emailer.conf.ts for an example
+    "REGISTER": {
+      "from": "accounts@domainname.com",
+      "subject": "Account Created",
+      "template": "register",
+      "context": {
+        "website": "http://www.domainname.com"
+      }
+    } 
+  }
 }
 
 You should definitely change your `SESSION_SECRET` for even the most lackadaisical development effort.
@@ -399,103 +427,105 @@ $ npm run server:prod
 Other commands
 --------------
 
-### transpile/bundle/recompile server code with `webpack`
+##Server
+  ### transpile/bundle/recompile server code with `webpack`
 
-### restart server on file change
+  ### restart server on file change
+  
+  ```bash
+  $ gulp serve
+  ```
+  
+  ### build server code with `webpack`
+  
+  ```bash
+  $ gulp build:server
+  ```
+  
+  ### build server code and restart node server on change
+  
+  ```bash
+  $ gulp watch:server
+  ```
+  
+  ### build documentation
+  
+  ```bash
+  $ gulp build:docs
+  ```
+  
+  ### clean documentation
+  
+  ```bash
+  $ gulp clean:docs
+  ```
+  
+  ### lint sass
+  
+  ```bash
+  $ gulp lint:sass
+  ```
+  
+  ### watch and lint sass
+  
+  ```bash
+  $ gulp watch:sass
+  ```
 
-```bash
-$ gulp serve
-```
-
-### build server code with `webpack`
-
-```bash
-$ gulp build:server
-```
-
-### build server code and restart node server on change
-
-```bash
-$ gulp watch:server
-```
-
-### build documentation
-
-```bash
-$ gulp build:docs
-```
-
-### clean documentation
-
-```bash
-$ gulp clean:docs
-```
-
-### lint sass
-
-```bash
-$ gulp lint:sass
-```
-
-### watch and lint sass
-
-```bash
-$ gulp watch:sass
-```
-
-### build files
-
-```bash
-# development
-$ npm run build:dev
-# production
-$ npm run build:prod
-```
-
-### watch and build files
-
-```bash
-$ npm run watch
-```
-
-### run tests
-
-```bash
-$ npm run test
-```
-
-### watch and run our tests
-
-```bash
-$ npm run watch:test
-```
-
-### run end-to-end tests
-
-```bash
-# make sure you have your server running in another terminal
-$ npm run e2e
-```
-
-### run webdriver (for end-to-end)
-
-```bash
-$ npm run webdriver:update
-$ npm run webdriver:start
-```
-
-### run Protractor's elementExplorer (for end-to-end)
-
-```bash
-$ npm run webdriver:start
-# in another terminal
-$ npm run e2e:live
-```
+##Client
+  ### build files
+  
+  ```bash
+  # development
+  $ npm run build:dev
+  # production
+  $ npm run build:prod
+  ```
+  
+  ### watch and build files
+  
+  ```bash
+  $ npm run watch
+  ```
+  
+  ### run tests
+  
+  ```bash
+  $ npm run test
+  ```
+  
+  ### watch and run our tests
+  
+  ```bash
+  $ npm run watch:test
+  ```
+  
+  ### run end-to-end tests
+  
+  ```bash
+  # make sure you have your server running in another terminal
+  $ npm run e2e
+  ```
+  
+  ### run webdriver (for end-to-end)
+  
+  ```bash
+  $ npm run webdriver:update
+  $ npm run webdriver:start
+  ```
+  
+  ### run Protractor's elementExplorer (for end-to-end)
+  
+  ```bash
+  $ npm run webdriver:start
+  # in another terminal
+  $ npm run e2e:live
+  ```
 
 Configuration
 =============
 
-Configuration files live in `config/`. We are currently using `mongooose`, `passportJS`, `webpack`, `mocha`, `karma`, and `protractor` for different stages and parts of your full-stack application
+Configuration files live in `config/`. We are currently using `mongooose`, `passportJS`, `webpack`, `karma`, and `protractor` for different stages and parts of your full-stack application
 
 Contributing
 ============
