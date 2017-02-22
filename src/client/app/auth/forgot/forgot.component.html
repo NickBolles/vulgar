@@ -1,0 +1,51 @@
+<div *ngIf="!appState.get('isAuthenticated')">
+  <h1 class="section-header">Forgot Password</h1>
+  <md-card>
+    <md-card-content>
+      <form *ngIf="!accepted" [formGroup]="forgotForm" novalidate (ngSubmit)="processInput()">
+        <h4>Enter your Email address or username to get started recovering your password</h4>
+        <div>
+          <div>
+            <md-input-container>
+              <input md-input type="text" formControlName="email" placeholder="Email or Username"
+                     validateEmail="email" validateUsermame="email">
+            </md-input-container>
+            <small class="form-error"
+                   *ngIf="(submitted || forgotForm.controls.email.touched) &&
+                         forgotForm.controls.email.invalid ||
+                         forgotForm.controls.email.errors?.minlength">
+                  Username or email is required.
+            </small>
+            <small class="form-error"
+                   *ngIf="(submitted || forgotForm.controls.email.touched) &&
+                         forgotForm.controls.email.invalid ||
+                         forgotForm.controls.email.errors?.usernameTaken === false ||
+                         forgotForm.controls.email.errors?.emailTaken === false">
+                  No user registered with {{forgotForm.controls.email.value}}
+            </small>
+          </div>
+        </div>
+        <div>
+          <button md-raised-button color="primary" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+      <div *ngIf="submitted">
+        <p [hidden]="!active">
+          {{message}}
+        </p>
+        <p [hidden]="active" [ngClass]="accepted ? 'form-valid': 'form-error'">
+          {{message}}
+        </p>
+      </div>
+    </md-card-content>
+  </md-card>
+</div>
+<div *ngIf="appState.get('isAuthenticated')">
+  <h1 class="section-header">You are already logged in</h1>
+  <p>If you would like to reset your password you will need to logout first.</p>
+  <div>
+    <button md-raised-button color="primary" (click)="logout()">Log Out</button>
+  </div>
+</div>
