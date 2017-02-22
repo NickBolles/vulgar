@@ -62,6 +62,13 @@
           </button>
         </div>
       </form>
+      <div *ngIf="registerForm.pending || registerForm.active">
+        <md-progress-bar
+          style="margin: 16px 8px; width: 25%"
+          color="primary"
+          [mode]="registerForm.active ? 'indeterminate':'query'">
+        </md-progress-bar>
+      </div>
       <div *ngIf="submitted">
         <p [hidden]="!active">
           {{message}}
