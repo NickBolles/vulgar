@@ -2,8 +2,8 @@
   @import '../../sass/themes/_default.scss';
 
 .form-error {
-  color: md-color(map-get($theme, warn));
+  color: mat-color(map-get($theme, warn));
 }
 .form-valid {
-  color: md-color($md-green, 500);
+  color: mat-color($mat-green, 500);
 }
