@@ -7,13 +7,13 @@
         <div>
           <div *ngIf="!resetToken">
             <md-input-container>
-              <input md-input type="password" name="password" formControlName="password"
+              <input mdInput type="password" name="password" formControlName="password"
                      placeholder="Current Password">
             </md-input-container>
           </div>
           <div>
             <md-input-container>
-              <input md-input type="password" name="newPassword" formControlName="newPassword"
+              <input mdInput type="password" name="newPassword" formControlName="newPassword"
                      placeholder="Password">
             </md-input-container>
             <small class="form-error" *ngIf="formErrors.newPassword">
@@ -23,7 +23,7 @@
 
           <div>
             <md-input-container>
-              <input md-input type="password" name="confirm" formControlName="confirm"
+              <input mdInput type="password" name="confirm" formControlName="confirm"
                      placeholder="Confirm Password">
             </md-input-container>
             <small class="form-error" *ngIf="formErrors.confirm">

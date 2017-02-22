@@ -13,7 +13,7 @@ import { ResetComponent } from "./reset.component";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [
     ResetComponent

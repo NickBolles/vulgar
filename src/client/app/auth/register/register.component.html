@@ -5,7 +5,7 @@
       <form *ngIf="!accepted" [formGroup]="registerForm" novalidate (ngSubmit)="processUserData()">
         <div>
           <md-input-container>
-            <input md-input type="text" formControlName="firstName" placeholder="First Name">
+            <input mdInput type="text" formControlName="firstName" placeholder="First Name">
           </md-input-container>
           <small class="form-error" *ngIf="formErrors.firstName">
             {{ formErrors.firstName }}
@@ -13,12 +13,12 @@
         </div>
         <div>
           <md-input-container>
-            <input md-input type="text" formControlName="lastName" placeholder="Last Name">
+            <input mdInput type="text" formControlName="lastName" placeholder="Last Name">
           </md-input-container>
         </div>
         <div>
           <md-input-container>
-            <input md-input type="text" formControlName="username" placeholder="Username">
+            <input mdInput type="text" formControlName="username" placeholder="Username">
           </md-input-container>
           <small class="form-error" *ngIf="formErrors.username">
             {{ formErrors.username }}
@@ -27,7 +27,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="email" formControlName="email" placeholder="Email">
+            <input mdInput type="email" formControlName="email" placeholder="Email">
           </md-input-container>
           <small class="form-error" *ngIf="formErrors.email">
             {{ formErrors.email }}
@@ -36,7 +36,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="password" name="password" formControlName="password"
+            <input mdInput type="password" name="password" formControlName="password"
                    placeholder="Password">
           </md-input-container>
           <small class="form-error" *ngIf="formErrors.password">
@@ -46,7 +46,7 @@
 
         <div>
           <md-input-container>
-            <input md-input type="password" name="confirm" formControlName="confirm"
+            <input mdInput type="password" name="confirm" formControlName="confirm"
                    placeholder="Confirm Password">
           </md-input-container>
           <small class="form-error" *ngIf="formErrors.confirm">

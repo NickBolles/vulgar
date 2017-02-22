@@ -13,7 +13,7 @@ import { AdminRoutingModule } from './admin-routing.module';
   imports: [
     AdminRoutingModule,
     CommonModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [
     AdminComponent,

@@ -13,7 +13,7 @@ import { ForgotModule } from "./forgot/forgot.module";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule.forRoot(),
+    MaterialModule,
     ResetModule,
     RegisterModule,
     LoginModule,
