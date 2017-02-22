@@ -67,8 +67,8 @@ export class PublicUser implements IPublicUser {
 
   role: UserRole = UserRole.User;
 
-  local: {
-    username: string;
+  local: {username: string} = {
+    username: ''
   };
 
   lastLogin: number;
