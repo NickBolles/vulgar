@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as passport from 'passport';
 // Load `User` `interfaces`, `class`, and `model`
-import { IUser, User, UserDocument, Users } from '../models/user.model';
+import {IUser, User, UserDocument, Users, PublicUser} from '../models/user.model';
 
 import Router from './router';
 
@@ -41,20 +41,11 @@ module Route {
       this.config();
     }
 
-    private getResetToken(): Promise<String> {
-      return new Promise((resolve, reject) => {
-        crypto.randomBytes(16, (err, buf) => {
-          if (err) {reject(err);}
-          resolve(buf.toString('hex'))
-        })
-      })
-    }
-
     private authenticate(req: express.Request,
                          res: express.Response) {
       // If the user is authenticated, return a `user` session object
       // else return `0`
-      res.send(req.isAuthenticated() ? req.user : '0');
+      res.send(req.isAuthenticated() ? new PublicUser(req.user) : '0');
     }
 
     private config() {
@@ -66,28 +57,34 @@ module Route {
               next: express.NextFunction) => {
           this.authenticate(req, res);
         });
+
       router
         .delete(`${BASE_URI}/delete/:uid`, this.admin, (req: express.Request,
                                                         res: express.Response) => {
           this.delete(req, res);
         });
+
       router.route(`${BASE_URI}/login`)
         .post((req, res, next) => {
           this.login(req, res, next);
         });
+
       router.route(`${BASE_URI}/logout`)
         .post((req, res, next) => {
           this.logout(req, res);
         });
+
       router.route(`${BASE_URI}/register`)
         .post((req, res, next) => {
           this.register(req, res, next);
         });
+
       // initiates a forgotten password request
       router.route(`${BASE_URI}/forgot`)
         .post((req, res, next) => {
           this.forgot(req, res, next);
         });
+
       // Completes forgotten password request, or password change
       router.route(`${BASE_URI}/reset`)
         .post((req,res,next) => {
@@ -122,7 +119,7 @@ module Route {
     private getSessionData(req: express.Request,
                            res: express.Response) {
       // Send response in JSON to allow disassembly of object by functions
-      res.json(req.user);
+      res.json(new PublicUser(req.user));
     }
 
     private login(req: express.Request,
@@ -135,6 +132,7 @@ module Route {
       // exception occured, `err` will be set. `info` contains a message
       // set within the Local Passport strategy.
       passport.authenticate('local-login', (err: any, user: User, info: any) => {
+        console.log('Local-login', err, user, info);
         if (err)
           return next(err);
         // If no user is returned...
@@ -150,9 +148,8 @@ module Route {
           if (err)
             return next(err);
           // Set HTTP status code `200 OK`
-          res.status(200);
           // Return the user object
-          res.send(req.user);
+          res.status(200).json(new PublicUser(req.user));
         });
       }) (req, res, next);
     }
@@ -176,8 +173,9 @@ module Route {
       // exception occured, `err` will be set. `info` contains a message
       // set within the Local Passport strategy.
       passport.authenticate('local-signup', (err: any, user: User, info: any) => {
-        if (err)
+        if (err) {
           return next(err);
+        }
         // If no user is returned...
         if (!user) {
           // Set HTTP status code `409 Conflict`
@@ -185,7 +183,8 @@ module Route {
           // Return the info message
           return next(info.message);
         }
-         res.status(200).json({message: info.message || 'Account created'});
+         res.status(200).json({user: new PublicUser(user), message: info.message || 'Account created'});
+        next();
         // Set HTTP status code `204 No Content`
       }) (req, res, next);
     }
@@ -209,25 +208,29 @@ module Route {
                      res: express.Response,
                      next: express.NextFunction) {
 
-      // todo: fix typing on these promises
       Users.findOne({
         $or:[
           {'local.username': req.body.email.toLowerCase()},
           {'local.email': req.body.email.toLowerCase()}
         ]
       })
-        .then((user: UserDocument) => {
+      // We need to type the return of this promise because typescript cant (yet) infer it
+        .then<[UserDocument, string]>((user: UserDocument) => {
           if (!user) {
             return Promise.reject({message: `Unable to find user "${req.body.email}"`, statusCode: 400});
           }
           return Promise.all([user, this.getResetToken()])
         })
+        // Use Array destructuring to assign arguments[0] to user and arguments[1] to token
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
         .then(([user, token]) => {
           user.resetPasswordToken = token;
           user.resetPasswordExpires = getTimestamp(moment().add(120, 'minutes'));
           return Promise.all([user, token, user.save()]);
         })
         //todo: move this to user?
+        // Use Array destructuring to assign arguments[0] to user and arguments[1] to token
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
         .then(([user, token]) => {
           let mailOpts = extend(true, {
             to: user.local.email,
@@ -248,7 +251,8 @@ module Route {
             res.status(200).json({message: message});
         })
         .catch((err) => {
-          res.status(err.statusCode || 400).json({message: err.message || err});
+          res.status(err.statusCode || 500);
+          next(err.message || err);
         })
     }
 
@@ -282,9 +286,10 @@ module Route {
                           next: express.NextFunction) {
       let query = Users.findOne({ resetPasswordToken: req.body.resetToken, resetPasswordExpires: { $gt: Date.now() } }).exec();
       // Continue with the reset process that is the same for both doPassReset and doForgotReset
-      this.completeReset(query, req, res);
+      this.completeReset(query, req, res, next);
       query.catch((err) => {
-        res.status(err.statusCode || 400).json({message: err.message || err});
+        res.status(err.statusCode || 500);
+        next(err.message || err);
       })
     }
 
@@ -308,7 +313,7 @@ module Route {
           return next(info.message);
         }
         // Continue with the reset process that is the same for both doPassReset and doForgotReset
-        this.completeReset(Promise.resolve(user as UserDocument), req, res);
+        this.completeReset(Promise.resolve(user as UserDocument), req, res, next);
       }) (req, res, next);
     }
 
@@ -324,12 +329,12 @@ module Route {
      * @param req
      * @param res
      */
-    private completeReset(promise: Promise<UserDocument>, req: express.Request, res: express.Response) {
+    private completeReset(promise: Promise<UserDocument>,
+                          req: express.Request, res: express.Response, next: express.NextFunction) {
 
-      // todo: fix typing on these promises
-      //       This has to do with rejecting the promise with a different type than we are resolving it with
       promise
-      .then((user: UserDocument) => {
+      // We need to explicitly type the return of the promise because typescript can't infer it
+      .then<[UserDocument]>((user: UserDocument) => {
           if (!user) {
             return Promise.reject({message: 'Password reset token is invalid or has expired.', statusCode: 400})
           }
@@ -344,7 +349,10 @@ module Route {
           });
           return Promise.all<UserDocument>([user, user.save()]);
         })
-        .then(([user]) => {
+      // Use Array destructuring to assign arguments[0] to user and ignore the result of user.save()
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+        // Also we need to explicitly type the return of the promise because typescript can't infer it
+        .then<[UserDocument, string]>(([user]) => {
           return new Promise((resolve, reject) => {
             console.log("login");
             req.login(user, (err) => {
@@ -355,6 +363,8 @@ module Route {
             })
           })
         })
+        // Use Array destructuring to assign arguments[0] to user and arguments[1] to message
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
         .then(([user, message]) => {
           let mailOpts = extend(true, {
             to: user.local.email,
@@ -373,14 +383,23 @@ module Route {
           });
         })
         .then((message) => {
-          res.status(200);
-          // Return the user object
-          res.send({ user: req.user, message: message});
+          // Return the public user object
+          res.status(200).json({ user: new PublicUser(req.user), message: message});
         })
         .catch((err) => {
           console.log("Error in completeReset", err);
-          res.status(err.statusCode || 400).json({message: err.message || err});
+          res.status(err.statusCode || 500);
+          next(err.message || err);
         })
+    }
+
+    private getResetToken(): Promise<String> {
+      return new Promise((resolve, reject) => {
+        crypto.randomBytes(16, (err, buf) => {
+          if (err) {reject(err);}
+          resolve(buf.toString('hex'))
+        })
+      })
     }
   }
 }
