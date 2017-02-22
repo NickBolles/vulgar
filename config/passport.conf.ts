@@ -16,6 +16,11 @@ import * as local from 'passport-local';
 
 // Load `User` `interfaces`, `class`, and `model`
 import {UserDocument, Users} from '../src/server/models/user.model';
+import {getTimestamp} from "../src/server/utils/moment";
+import {isString, isObject} from "../src/server/utils/TypeGuards";
+import extend = require("extend");
+import {EmailSettings, default as mailer} from "./emailer.conf";
+import {UserTags} from "../src/shared/user.tags";
 
 // Load the `Mongoose` `ObjectId` function
 let ObjectId = require('mongoose').Types.ObjectId;
@@ -206,8 +211,11 @@ export default function passportConf(passport) {
           return done(null,
             false,
             // Return info message object
-            { message : 'That username/email is already ' +
-            'taken.' }
+            { message : `An account already exists with ` +
+                          ((user.local.username === username) ?
+                          'username ' + username :
+                          'email ' + user.local.email)
+            }
           );
         } else {
           // If there is no user with that email or username...
@@ -218,14 +226,57 @@ export default function passportConf(passport) {
           // email to lowercase characters
           newUser.local.username = username.toLowerCase();
           newUser.local.email = req.body.email.toLowerCase();
-          // Hash password with model method
-          newUser.local.password = newUser.generateHash(password);
-          // Save the new user
-          newUser.save((err) => {
-            if (err)
-              throw err;
-            return done(null, newUser);
-          });
+          newUser.local.password = password;
+          newUser.name = req.body.name;
+
+          // Add a login object to the Users logins array
+          newUser.logins.push({time: getTimestamp(),
+            success: true,
+            result: 'Account Created'});
+          // Save the user
+          return newUser.save()
+            // After saving the user, finish the signup
+            .then(() => {
+              // TODO: remove debug log
+              console.log("New User created, sending registration email");
+              let mailOpts = extend(true, {
+                to: newUser.local.email,
+                context: {
+                  url: `http://${req.headers['host']}/login`
+                }
+              }, EmailSettings.REGISTER);
+
+              mailer.sendMail(mailOpts, (err) => {
+                if (err) {
+                  // TODO: remove debug log
+                  console.error("Failed to send registration email: " + err);
+                  // Save a tag on the user to identify them later on
+                  newUser.addTag(UserTags.REGISTRATION_EMAIL_FAILED);
+                  // Save the tag
+                  newUser.save((err) => {
+
+                    // ### Verify Callback
+                    // Invoke `done` with `false` to indicate authentication
+                    // failure regardless of err here
+                    return done(null,
+                      newUser,
+                      // Return info message object
+                      { message : 'Account created, but failed to send new account email' }
+                    );
+                  });
+                } else {
+                  // ### Verify Callback
+                  // Invoke `done` with newUser to indicate authentication success
+                  return done(null, newUser, {message: 'Account created. Confirmation email sent.'});
+                }
+              });
+            })
+            .catch((err) => {
+              // ### Verify Callback
+              // Invoke `done` with `false` to indicate authentication
+              // failure
+              return done(null, false, {message: err.message || 'Error in saving account'});
+            });
         }
       });
     });
@@ -289,14 +340,48 @@ export default function passportConf(passport) {
                          + 'Please enter valid user credentials.' }
         );
       }
-      // If the user is found but the password is incorrect
-      if (!user.validPassword(password)) {
-        return done(null,
-          false,
-          { message : 'Invalid password entered.' });
-      }
-      // Otherwise all is well; return successful user
-      return done(null, user);
+      // Call the user.login method to do all of the heavy lifting of login
+      // and anything that needs to be done on every login, such as
+      // adding an entry to the logins array
+      user.login(password)
+        .then((valid) => {
+          // If the password is invalid or the account is locked throw rejection to be caught
+          if (!valid) {
+            return Promise.reject('Unable to login. Unknown internal server error');
+          }
+          // TODO: remove debug log
+          console.log('Login finished result was', valid, user);
+          // TODO: remove debug callback
+          return user.save(function(doc){
+            console.log('user saved', doc);
+          })
+        })
+        // After user is saved, call the done callback with the user
+        .then(() => {
+           // TODO: remove debug log
+          console.log('Passport Authenticate finished');
+          return done(null, user);
+        })
+        // Catch any errors in the login processes
+        .catch((err) => {
+          // TODO: remove debug log
+          console.log('Login failed with error', err);
+          // This save saves the login array that was modified in user.login()
+          // This belongs in the
+          return user.save()
+        })
+        // After user is done saving the errors
+        .then(() => {
+          return done(null,
+            false,
+            err);
+        }, (err2) => {
+          // TODO: remove debug log
+          console.error('unable to save user', err);
+          return done(null,
+            false,
+            err + err2);
+        })
     });
   }));
 };
