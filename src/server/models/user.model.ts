@@ -128,6 +128,9 @@ export interface IUser  extends IPublicUser{
   };
   logins: ILogin[]
 
+  resetPasswordToken: string;
+  resetPasswordExpires: number;
+
   tags: UserTags[]
 }
 
@@ -156,6 +159,8 @@ export class User extends PublicUser implements IUser {
 
   loginAttempts: number = 0;
   lockUntil: number;
+  resetPasswordToken: string;
+  resetPasswordExpires: number;
 
   tags: UserTags[];
 
@@ -169,6 +174,9 @@ export class User extends PublicUser implements IUser {
 
     // Set a default value for the arrays so that it doesn't error when we try to access them
     this.logins = data.logins || [];
+
+    this.resetPasswordToken = data.resetPasswordToken;
+    this.resetPasswordExpires = data.resetPasswordExpires;
 
     this.tags = data.tags || [];
   }
@@ -383,6 +391,8 @@ export class User extends PublicUser implements IUser {
         email: this.local.email
       },
       logins: this.logins,
+      resetPasswordToken: this.resetPasswordToken,
+      resetPasswordExpires: this.resetPasswordExpires,
       tags: this.tags
     })
   }
@@ -409,6 +419,8 @@ let userSchema = new Schema({
 
   loginAttempts: { type: Number, default: 0, required: false},
   lockUntil: { type: Number, required: false},
+  resetPasswordToken: {type: String, required: false},
+  resetPasswordExpires: {type: Number, required: false},
 
   tags : [{ type : String, enum: EnumUtils.getValues(UserTags)}],
 
