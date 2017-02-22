@@ -224,99 +224,96 @@ export default function passportConf(passport) {
     // Normalize the email to be in a standard format
     // https://github.com/chriso/validator.js#sanitizers
     req.body.email = validator.normalizeEmail(req.body.email, {lowercase: true, remove_dots: true, remove_extension: true});
-    // Asynchronous
-    // User.findOne will not fire unless data is sent back
-    process.nextTick(() => {
-      // Find a user whose email or username is the same as the passed
-      // in data.
-      // We are checking to see if the user trying to login already
-      // exists...
-      Users.findOne({
-        // Model.find `$or` Mongoose condition
-        $or : [
-          { 'local.username' : username },
-          { 'local.email' : req.body.email }
-        ]
-      }, (err, user) => {
-        // If there are any errors, return the error
-        if (err)
-          return done(err);
-        // If a user exists with either of those ...
-        if(user) {
-          // ### Verify Callback
-          // Invoke `done` with `false` to indicate authentication
-          // failure
-          return done(null,
-            false,
-            // Return info message object
-            { message : `An account already exists with ` +
-                          ((user.local.username === username) ?
-                          'username ' + username :
-                          'email ' + user.local.email)
-            }
-          );
-        } else {
-          // If there is no user with that email or username...
-          // Create the user
-          let newUser = new Users();
-          // Set the user's local credentials
-          // Combat case sensitivity by converting username and
-          // email to lowercase characters
-          newUser.local.username = username.toLowerCase();
-          newUser.local.email = req.body.email.toLowerCase();
-          newUser.local.password = password;
-          newUser.name = req.body.name;
 
-          // Add a login object to the Users logins array
-          newUser.logins.push({time: getTimestamp(),
-            success: true,
-            result: 'Account Created'});
-          // Save the user
-          return newUser.save()
-            // After saving the user, finish the signup
-            .then(() => {
-              // TODO: remove debug log
-              console.log("New User created, sending registration email");
-              let mailOpts = extend(true, {
-                to: newUser.local.email,
-                context: {
-                  url: `http://${req.headers['host']}/login`
-                }
-              }, EmailSettings.REGISTER);
+    // Find a user whose email or username is the same as the passed
+    // in data.
+    // We are checking to see if the user trying to login already
+    // exists...
+    Users.findOne({
+      // Model.find `$or` Mongoose condition
+      $or : [
+        { 'local.username' : username.toLowerCase() },
+        { 'local.email' : req.body.email }
+      ]
+    }, (err, user) => {
+      // If there are any errors, return the error
+      if (err)
+        return done(err);
+      // If a user exists with either of those ...
+      if(user) {
+        // ### Verify Callback
+        // Invoke `done` with `false` to indicate authentication
+        // failure
+        return done(null,
+          false,
+          // Return info message object
+          { message : `An account already exists with ` +
+                        ((user.local.username === username) ?
+                        'username ' + username :
+                        'email ' + user.local.email)
+          }
+        );
+      } else {
+        // If there is no user with that email or username...
+        // Create the user
+        let newUser = new Users();
+        // Set the user's local credentials
+        // Combat case sensitivity by converting username and
+        // email to lowercase characters
+        newUser.local.username = username.toLowerCase();
+        newUser.local.email = req.body.email.toLowerCase();
+        newUser.local.password = password;
+        newUser.name = req.body.name;
 
-              mailer.sendMail(mailOpts, (err) => {
-                if (err) {
-                  // TODO: remove debug log
-                  console.error("Failed to send registration email: " + err);
-                  // Save a tag on the user to identify them later on
-                  newUser.addTag(UserTags.REGISTRATION_EMAIL_FAILED);
-                  // Save the tag
-                  newUser.save((err) => {
+        // Add a login object to the Users logins array
+        newUser.logins.push({time: getTimestamp(),
+          success: true,
+          result: 'Account Created'});
+        // Save the user
+        return newUser.save()
+          // After saving the user, finish the signup
+          .then(() => {
+            // TODO: remove debug log
+            console.log("New User created, sending registration email");
+            let mailOpts = extend(true, {
+              to: newUser.local.email,
+              context: {
+                url: `http://${req.headers['host']}/login`
+              }
+            }, EmailSettings.REGISTER);
 
-                    // ### Verify Callback
-                    // Invoke `done` with `false` to indicate authentication
-                    // failure regardless of err here
-                    return done(null,
-                      newUser,
-                      // Return info message object
-                      { message : 'Account created, but failed to send new account email' }
-                    );
-                  });
-                } else {
+            mailer.sendMail(mailOpts, (err) => {
+              if (err) {
+                // TODO: remove debug log
+                console.error("Failed to send registration email: " + err);
+                // Save a tag on the user to identify them later on
+                newUser.addTag(UserTags.REGISTRATION_EMAIL_FAILED);
+                // Save the tag
+                newUser.save((err) => {
+
                   // ### Verify Callback
-                  // Invoke `done` with newUser to indicate authentication success
-                  return done(null, newUser, {message: 'Account created. Confirmation email sent.'});
-                }
-              });
-            })
-            .catch((err) => {
-              // ### Verify Callback
-              // Invoke `done` with `false` to indicate authentication
-              // failure
-              return done(null, false, {message: err.message || 'Error in saving account'});
+                  // Invoke `done` with `false` to indicate authentication
+                  // failure regardless of err here
+                  return done(null,
+                    newUser,
+                    // Return info message object
+                    { message : 'Account created, but failed to send new account email' }
+                  );
+                });
+              } else {
+                // ### Verify Callback
+                // Invoke `done` with newUser to indicate authentication success
+                return done(null, newUser, {message: 'Account created. Confirmation email sent.'});
+              }
             });
-        }
-      });
+          })
+          .catch((err) => {
+            // ### Verify Callback
+            // Invoke `done` with `false` to indicate authentication
+            // failure
+            return done(null, false, {message: err.message || 'Error in saving account'});
+          });
+      }
     });
   }));
 

@@ -106,8 +106,8 @@ module Route {
       Users.remove({
         // Model.find `$or` Mongoose condition
         $or : [
-          { 'local.username' : req.params.uid },
-          { 'local.email' : req.params.uid },
+          { 'local.username' : req.params.uid.toLowerCase() },
+          { 'local.email' : req.params.uid.toLowerCase() },
           { '_id' : ObjectId(req.params.uid) }
         ]
       }, (err: any) => {
@@ -210,7 +210,12 @@ module Route {
                      next: express.NextFunction) {
 
       // todo: fix typing on these promises
-      Users.findOne({ $or:[ {'local.username': req.body.email}, {'local.email': req.body.email} ]})
+      Users.findOne({
+        $or:[
+          {'local.username': req.body.email.toLowerCase()},
+          {'local.email': req.body.email.toLowerCase()}
+        ]
+      })
         .then((user: UserDocument) => {
           if (!user) {
             return Promise.reject({message: `Unable to find user "${req.body.email}"`, statusCode: 400});
