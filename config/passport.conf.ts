@@ -17,16 +17,12 @@ import * as local from 'passport-local';
 // Load `User` `interfaces`, `class`, and `model`
 import {UserDocument, Users} from '../src/server/models/user.model';
 import {getTimestamp} from "../src/server/utils/moment";
-import {isString, isObject} from "../src/server/utils/TypeGuards";
+import {isString} from "../src/server/utils/TypeGuards";
 import extend = require("extend");
 import {EmailSettings, default as mailer} from "./emailer.conf";
 import {UserTags} from "../src/shared/user.tags";
 import * as validator from 'validator';
-
-// Load the `Mongoose` `ObjectId` function
-let ObjectId = require('mongoose').Types.ObjectId;
-
-
+import {IVerifyOptions} from "passport-local";
 
 interface IBounds {
   username : {
@@ -61,43 +57,12 @@ export default function passportConf(passport) {
     }
   };
 
-  let re = {
-    email: {
-      complex: {
-        // Complex Javascript Regex (ASCII Only)
-        // https://regex101.com/r/dZ6zE6/1#
-        ascii: /^(?=[A-Za-z0-9][A-Za-z0-9@._%+-]{5,253}$)[A-Za-z0-9._%+-]{1,64}@(?:(?=[A-Za-z0-9-]{1,63}\.)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\.){1,8}[A-Za-z]{2,63}$/g,
-        // Complex Javascript Regex (With Non ASCII Support)
-        // https://regex101.com/r/sF6jE4/1
-        nonascii: /^(?=([A-Za-z0-9]|[^\x00-\x7F])([A-Za-z0-9@._%+-]|[^\x00-\x7F]){5,253}$)([A-Za-z0-9._%+-]|[^\x00-\x7F]){1,64}@(?:(?=([A-Za-z0-9-]|[^\x00-\x7F]){1,63}\.)([A-Za-z0-9]|[^\x00-\x7F])+(?:-([A-Za-z0-9]|[^\x00-\x7F])+)*\.){1,8}([A-Za-z]|[^\x00-\x7F]){2,63}$/g
-      },
-      simple: {
-        // Simple 'Good Enough' Javascript Regex (ASCII Only)
-        // https://regex101.com/r/aI9yY6/1
-        ascii: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/g,
-        // Simple 'Good Enough' Javascript Regex (With Non ASCII Support)
-        // https://regex101.com/r/hM7lN3/1
-        nonascii: /^([a-zA-Z0-9._%+-]|[^\x00-\x7F])+?@([a-zA-Z0-9.-]|[^\x00-\x7F])+\.([a-zA-Z]|[^\x00-\x7F]){2,63}$/g
-      }
-    }
-  }
-
-  // Function to check a string against a REGEX for email validity
-  let validateEmail = (email: string) => {
-    // Test the passed in `email` against the specified result and return the
-    // result
-    return re.email.complex.nonascii.test(email);
-  };
 
   // Helper function to validate string length
   let checkLength = (input: string, min: number, max: number) => {
     console.log(input);
     // If the string is outside the passed in bounds...
-    if(input.length > max || input.length < min)
-      return false;
-
-    else
-      return true;
+    return !(input.length > max || input.length < min);
   };
 
   // # Passport Session Setup
@@ -151,16 +116,6 @@ export default function passportConf(passport) {
     if (isString(req.body.name)) {
       req.body.name = {
         first: req.body.name,
-      }
-    }
-    if (isObject(req.body.name)) {
-      let pts = req.body.name.first;
-      if (isString(pts) ){
-        pts = pts.split(" ");
-      }
-      req.body.name = {
-        first: isString(pts[0]) ? pts.unshift().toLowerCase() : pts.unshift(),
-        last: isString(pts[1]) ? pts.join(" ").toLowerCase() : req.body.name.last
       }
     }
     if(!req.body.name || !req.body.name.first) {
@@ -282,6 +237,7 @@ export default function passportConf(passport) {
               }
             }, EmailSettings.REGISTER);
 
+            // todo: flatten and simplify this more
             mailer.sendMail(mailOpts, (err) => {
               if (err) {
                 // TODO: remove debug log
@@ -398,24 +354,28 @@ export default function passportConf(passport) {
           return done(null, user);
         })
         // Catch any errors in the login processes
-        .catch((err) => {
+        .catch<IVerifyOptions>((err) => {
           // TODO: remove debug log
           console.log('Login failed with error', err);
           // This save saves the login array that was modified in user.login()
           // This belongs in the
           return user.save()
+            .then(() => err)
+            .catch(() => err);
         })
         // After user is done saving the errors
-        .then(() => {
+        .then((err: IVerifyOptions) => {
+          // todo: remove debug log
+          console.error('unable to login because ', err);
           return done(null,
             false,
             err);
-        }, (err2) => {
+        }, (err) => {
           // TODO: remove debug log
           console.error('unable to save user', err);
           return done(null,
             false,
-            err2);
+            err);
         })
     });
   }));
