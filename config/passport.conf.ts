@@ -21,6 +21,7 @@ import {isString, isObject} from "../src/server/utils/TypeGuards";
 import extend = require("extend");
 import {EmailSettings, default as mailer} from "./emailer.conf";
 import {UserTags} from "../src/shared/user.tags";
+import * as validator from 'validator';
 
 // Load the `Mongoose` `ObjectId` function
 let ObjectId = require('mongoose').Types.ObjectId;
@@ -140,6 +141,38 @@ export default function passportConf(passport) {
     passReqToCallback : true
   }, (req, username, password, done) => {
     // ## Data Checks
+
+    // TODO: remove debug log
+    console.log("Passporat local-signup: validating data", req.body);
+    // If the length of the username string is too long/short,
+    // invoke verify callback
+
+    // Normalize the name to be an object
+    if (isString(req.body.name)) {
+      req.body.name = {
+        first: req.body.name,
+      }
+    }
+    if (isObject(req.body.name)) {
+      let pts = req.body.name.first;
+      if (isString(pts) ){
+        pts = pts.split(" ");
+      }
+      req.body.name = {
+        first: isString(pts[0]) ? pts.unshift().toLowerCase() : pts.unshift(),
+        last: isString(pts[1]) ? pts.join(" ").toLowerCase() : req.body.name.last
+      }
+    }
+    if(!req.body.name || !req.body.name.first) {
+      // ### Verify Callback
+      // Invoke `done` with `false` to indicate authentication
+      // failure
+      return done(null,
+        false,
+        // Return info message object
+        { message : 'Invalid username length.' }
+      );
+    }
     // If the length of the username string is too long/short,
     // invoke verify callback
     if(!checkLength(username, bounds.username.minLength, bounds.username.maxLength)) {
@@ -176,7 +209,9 @@ export default function passportConf(passport) {
       );
     }
     // If the string is not a valid email...
-    if(!validateEmail(req.body.email)) {
+    if(!validator.isEmail(req.body.email)) {
+      // TODO: remove debug log
+      console.log("Email is invaid ", req.body.email);
       // ### Verify Callback
       // Invoke `done` with `false` to indicate authentication
       // failure
@@ -186,6 +221,9 @@ export default function passportConf(passport) {
         { message : 'Invalid email address.' }
       );
     }
+    // Normalize the email to be in a standard format
+    // https://github.com/chriso/validator.js#sanitizers
+    req.body.email = validator.normalizeEmail(req.body.email, {lowercase: true, remove_dots: true, remove_extension: true});
     // Asynchronous
     // User.findOne will not fire unless data is sent back
     process.nextTick(() => {
