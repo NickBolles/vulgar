@@ -15,30 +15,12 @@
 import * as local from 'passport-local';
 
 // Load `User` `interfaces`, `class`, and `model`
-import { IUser, User, UserDocument, Users } from '../src/server/models/user.model';
+import {UserDocument, Users} from '../src/server/models/user.model';
 
 // Load the `Mongoose` `ObjectId` function
 let ObjectId = require('mongoose').Types.ObjectId;
 
-class SessionUser implements IUser {
-  local: {
-    username: string;
-    password: string;
-    email: string;
-  };
-  role: string;
-  _id: any;
 
-  constructor(username: string,
-              id?: string,
-              email?: string,
-              role?: string) {
-    this.local.username = username;
-    this.local.email = email;
-    this._id = id || undefined;
-    this.role = role || undefined;
-  }
-}
 
 interface IBounds {
   username : {

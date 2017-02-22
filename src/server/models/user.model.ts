@@ -15,11 +15,89 @@
 import mongoose = require('mongoose');
 
 // Import library to hash passwords
-import * as bcrypt from 'bcrypt-nodejs';
+import * as bcrypt from 'bcrypt';
+import {getTimestamp, parseTimestamp} from "../utils/moment";
 
 let Schema = mongoose.Schema;
 
-export interface IUser {
+export interface IPublicUser {
+  _id: string;
+
+  created: number;
+  modified: number;
+
+  name: {
+    first: string;
+    last: string;
+  }
+
+  role: UserRole;
+  local: {
+    username: string;
+  };
+}
+
+/**
+ * A Public user to use when sending the user to the client or exposing anything publically
+ *
+ */
+export class PublicUser implements IPublicUser {
+  _id: any;
+
+  created: number;
+  modified: number;
+
+  name: {
+    first: string;
+    last: string;
+  };
+
+  role: UserRole = UserRole.User;
+
+  local: {
+    username: string;
+  };
+
+
+  constructor(data: IUser) {
+    this._id = data._id;
+
+    this.created = data.created;
+    this.modified = data.modified;
+
+    this.name = data.name || this.name;
+
+    this.role = data.role || this.role;
+
+    if (data.local) {
+      this.local.username = data.local.username;
+    }
+  }
+
+  /**
+   * Return a JSON object for this
+   * @param options
+   * @returns {any}
+   */
+  toJSON(options?: DocumentToObjectOptions): Object {
+    return {
+      _id: this._id,
+      created: this.created,
+      modified: this.modified,
+      name: {
+        first: this.name.first,
+        last: this.name.last
+      },
+      role: this.role,
+      local: {
+        username: this.local.username
+      },
+    }
+  }
+}
+
+
+export interface IUser  extends IPublicUser{
   local: {
     username: string;
     password: string;
@@ -29,7 +107,13 @@ export interface IUser {
   _id: any;
 }
 
-export class User implements IUser {
+/**
+ * User for internal use to have a model for the user
+ *
+ * This should not be used for anything publicly available, use PublicUser for that
+ */
+export class User extends PublicUser implements IUser {
+
   local: {
     username: string;
     password: string;
