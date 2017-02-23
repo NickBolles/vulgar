@@ -264,6 +264,11 @@ export class User extends PublicUser implements IUser {
    * @returns {boolean}
    */
   incLoginAttempt(): boolean {
+    // // Avoid counting every attempt against the user
+    if (this.isLocked()) {
+      return true;
+    }
+
     this.loginAttempts++;
     return this.isLocked();
   }
@@ -306,8 +311,9 @@ export class User extends PublicUser implements IUser {
   setLocked(val: boolean): boolean {
     if (val) {
       // Set the lock Until
-      let factor = Math.max(this.loginAttempts + 1 - User.MAX_LOGIN_ATTEMPTS, User.MAX_LOGIN_ATTEMPTS);
-      let seconds = Math.pow(factor, 2) * 15;
+      let factor = Math.max(this.loginAttempts - User.MAX_LOGIN_ATTEMPTS + 1, 1);
+      // Exponentially increase the lockout, starting at 30 + 2^1 * 5, 40 seconds
+      let seconds = Math.pow(2, factor) * 5 + 30;
       this.lockUntil = getTimestamp(moment().add(seconds, 'seconds'));
     } else {
       delete this.lockUntil;
