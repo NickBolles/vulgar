@@ -2,18 +2,14 @@
   <h1 class="section-header">Login</h1>
   <md-card>
     <md-card-content>
-      <form *ngIf="!accepted" [formGroup]="loginForm" novalidate (ngSubmit)="processUserData()">
+      <form *ngIf="!accepted" [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <div>
           <div>
             <md-input-container>
               <input mdInput type="text" formControlName="username" placeholder="Username or Email">
             </md-input-container>
-            <small class="form-error"
-                   *ngIf="(submitted || loginForm.controls.username.touched) &&
-                         loginForm.controls.username.invalid ||
-                         (loginForm.controls.username.errors?.required ||
-                         loginForm.controls.username.errors?.minLength)">
-                  Username is required (minimum 4 characters).
+            <small class="form-error" *ngIf="formErrors.username">
+                  {{formErrors.username}}
             </small>
           </div>
 
@@ -21,17 +17,13 @@
             <md-input-container>
               <input mdInput type="password" formControlName="password" placeholder="Password">
             </md-input-container>
-            <small class="form-error"
-                   *ngIf="(submitted || loginForm.controls.password.touched) &&
-                         loginForm.controls.password.invalid ||
-                         (loginForm.controls.password.errors?.required ||
-                         loginForm.controls.password.errors?.minLength)">
-                  Password is required (minimum 8 characters).
+            <small class="form-error" *ngIf="formErrors.password">
+                  {{formErrors.password}}
             </small>
           </div>
         </div>
         <div>
-          <button md-button color="warn" type="button" (click)="newUser()">
+          <button md-button color="warn" type="button" (click)="resetForm()">
             Clear
           </button>
           <button md-raised-button color="primary" type="submit">

@@ -10,18 +10,8 @@
               <input mdInput type="text" formControlName="email" placeholder="Email or Username"
                      validateEmail="email" validateUsermame="email">
             </md-input-container>
-            <small class="form-error"
-                   *ngIf="(submitted || forgotForm.controls.email.touched) &&
-                         forgotForm.controls.email.invalid ||
-                         forgotForm.controls.email.errors?.minlength">
-                  Username or email is required.
-            </small>
-            <small class="form-error"
-                   *ngIf="(submitted || forgotForm.controls.email.touched) &&
-                         forgotForm.controls.email.invalid ||
-                         forgotForm.controls.email.errors?.usernameTaken === false ||
-                         forgotForm.controls.email.errors?.emailTaken === false">
-                  No user registered with {{forgotForm.controls.email.value}}
+            <small class="form-error" *ngIf="formErrors.email">
+                  {{formErrors.email}}
             </small>
           </div>
         </div>

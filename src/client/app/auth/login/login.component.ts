@@ -13,120 +13,101 @@ import {
 import {AppState} from '../../app.service';
 import {AuthService} from '../../shared/services/auth.service';
 import {FormModel} from './form.model';
+import {AbstractFormComponent} from "../../shared/components/Form.component";
+import {ValidationService} from "../../shared/services/validation.service";
 
 @Component({
   templateUrl: 'login.component.html',
   styleUrls: ['form.scss']
 })
-export class LoginComponent {
-
-  // The user login form is of type `FormGroup`
-  public loginForm: FormGroup;
-
-  // True as soon as the submit button has been hit the first time
-  public submitted:boolean = false;
-  // True when the server has confirmed a successful request
-  public accepted:boolean = false;
-  // True when waiting for a response from the server
-  public active:boolean = true;
-
-  // The message to display to the user
-  public message: string;
+export class LoginComponent extends AbstractFormComponent{
+  formErrors= {
+    'username': '',
+    'password': ''
+  };
+  validationMessages= {
+    'username': {
+      'required': 'Username or email is required',
+      'minLength': 'Must be at least 4 characters'
+    },
+    'password': {
+      'required': 'Username or email is required',
+      'minLength': 'Must be at least 4 characters'
+    }
+  };
 
   constructor(private appState: AppState,
               private authService: AuthService,
               private formBuilder: FormBuilder,
-              private router: Router) {
+              private router: Router,
+              validationService: ValidationService) {
+    super(validationService);
   }
 
-  setMessage() {
-    this.message = 'Logged ' + (this.appState.get('isAuthenticated') ? 'in' : 'out');
+
+  newFormModel(): any {
+    return new FormModel('', '');
   }
 
-  newUser() {
-
-    let user = new FormModel('', '');
-
-    (<FormGroup>this.loginForm).setValue(user, {onlySelf: true});
-
-    // this.active = false;
-    //
-    // setTimeout(() => this.active = true, 0);
-
-  }
-
-  ngOnInit() {
-
-    setTimeout(() => this.setMessage(), 0);
-
-    let user = new FormModel('', '');
-
-    this.loginForm = this.formBuilder.group({
-      username: [user.username, [<any>Validators.required, <any>Validators.minLength(3)]],
-      password: [user.password, [<any>Validators.required, <any>Validators.minLength(8)]],
+  buildForm(formModel): any {
+    super.buildForm(formModel);
+    this.form = this.formBuilder.group({
+      username: [formModel.username, [<any>Validators.required, <any>Validators.minLength(3)]],
+      password: [formModel.password, [<any>Validators.required, <any>Validators.minLength(8)]],
     });
+    this.onFormBuild(this.form);
   }
 
-  processUserData() {
-    this.submitted = true;
-    if (this.loginForm.invalid) {
-      this.message = 'Please fill out all required fields';
-      return;
+  createRequest(): any {
+    return new FormModel(this.form.controls['username'].value.toLowerCase(),
+      this.form.controls['password'].value);
+  }
+
+  submitRequest(data: any): Observable<any> {
+    return this.authService.login(data);
+  }
+
+  onSubmitSuccess(res: any) {
+    super.onSubmitSuccess(res);
+    this.message = res.message;
+
+    // DEBUG
+    // TODO: Remove this DEBUG statement
+    console.log(res);
+
+    if (this.appState.get('isAuthenticated')) {
+      this.setAuthMessage();
+
+      // Reset our form...
+      this.resetForm();
+
+      // Get the redirect URL from our auth service
+      // If no redirect has been set, use the default
+      let redirect = this.authService.redirectUrl
+        ? this.authService.redirectUrl
+        : '/home';
+      // Redirect the user
+      this.router.navigate([redirect]);
     }
-    // todo: use active flag
-    this.active = true;
-    this.message = 'Logging in...';
-
-    let userData = new FormModel(this.loginForm.controls['username'].value.toLowerCase(),
-      this.loginForm.controls['password'].value);
-    this.login(userData);
   }
 
-  login(user) {
+  onSubmitFail(err: any) {
+    super.onSubmitFail(err);
 
-    this.authService.login(user)
-      // .map(res => res.json)
-      .subscribe((res) => {
-        // Toggle our `accepted` flag...
-        this.accepted = true;
-        // Toggle active flag
-        this.active = false;
-        this.message = res.message;
+    // DEBUG
+    // TODO: Remove this debug statement
+    console.error(err);
 
-        // DEBUG
-        // TODO: Remove this DEBUG statement
-        console.log(res);
+    let body = err._body;
+    try {
+      body = err.json();
+    } catch(e) {}
+    this.message = body.message || body || err;
+  }
 
-        if (this.appState.get('isAuthenticated')) {
-          this.setMessage();
 
-          // Reset our form...
-          this.newUser();
-
-          // Get the redirect URL from our auth service
-          // If no redirect has been set, use the default
-          let redirect = this.authService.redirectUrl
-            ? this.authService.redirectUrl
-            : '/home';
-          // Redirect the user
-          this.router.navigate([redirect]);
-        }
-
-      }, (error) => {
-        this.accepted = false;
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this debug statement
-        console.error(error);
-
-        let body = error._body;
-        try {
-          body = error.json();
-        } catch(e) {}
-        this.message = body.message || body || error;
-      });
-
+  setAuthMessage() {
+    this.message = 'Logged ' + (this.appState.get('isAuthenticated') ? 'in' : 'out');
   }
 
   logout() {
@@ -138,7 +119,7 @@ export class LoginComponent {
         console.error(err);
       });
 
-    this.setMessage();
+    this.setAuthMessage();
   }
 
 }

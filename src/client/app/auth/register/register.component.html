@@ -2,7 +2,7 @@
   <h1 class="section-header">Register</h1>
   <md-card>
     <md-card-content>
-      <form *ngIf="!accepted" [formGroup]="registerForm" novalidate (ngSubmit)="processUserData()">
+      <form *ngIf="!accepted" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div>
           <md-input-container>
             <input mdInput type="text" formControlName="firstName" placeholder="First Name">
@@ -54,19 +54,19 @@
           </small>
         </div>
         <div>
-          <button md-button color="warn" (click)="newUser()">
+          <button md-button color="warn" (click)="resetForm()">
             Clear
           </button>
-          <button md-raised-button color="primary" type="submit">
+          <button md-raised-button color="primary" type="submit">s
             Submit
           </button>
         </div>
       </form>
-      <div *ngIf="registerForm.pending || registerForm.active">
+      <div *ngIf="form.pending || active">
         <md-progress-bar
           style="margin: 16px 8px; width: 25%"
           color="primary"
-          [mode]="registerForm.active ? 'indeterminate':'query'">
+          [mode]="active ? 'indeterminate':'query'">
         </md-progress-bar>
       </div>
       <div *ngIf="submitted">
@@ -91,10 +91,10 @@
 </div>
 <div *ngIf="!appState.get('isAuthenticated')">
   <div>
-    <div>registerForm details:</div>
-    <pre>Is registerForm valid?: <br>{{registerForm.valid | json}}</pre>
-    <pre>Is registerForm submitted?: <br>{{submitted | json}}</pre>
-    <pre>registerForm value: <br>{{registerForm.value | json}}</pre>
+    <div>form details:</div>
+    <pre>Is form valid?: <br>{{form.valid | json}}</pre>
+    <pre>Is form submitted?: <br>{{submitted | json}}</pre>
+    <pre>form value: <br>{{form.value | json}}</pre>
   </div>
   <div>
     Form changes:

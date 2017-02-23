@@ -17,6 +17,7 @@ import {EqualValidator, UsernameValidator, EmailValidator} from '../shared/direc
 import {FormModel} from './form.model';
 import {User} from './user.model';
 import {CustomValidators} from 'ng2-validation';
+import {AbstractFormComponent} from "../../shared/components/Form.component";
 
 const re = {
   email: {
@@ -45,17 +46,7 @@ const re = {
   templateUrl: 'register.component.html',
   styleUrls: ['form.scss']
 })
-export class RegisterComponent {
-
-  // The user registration form is of type `FormGroup`
-  public registerForm: FormGroup;
-
-  // True as soon as the submit button has been hit the first time
-  public submitted: boolean = false;
-  // True when the server has confirmed a successful request
-  public accepted: boolean = false;
-  // True when waiting for a response from the server
-  public active: boolean = false;
+export class RegisterComponent extends AbstractFormComponent {
 
   // The message to display to the user
   public message: string;
@@ -64,198 +55,74 @@ export class RegisterComponent {
               private authService: AuthService,
               private formBuilder: FormBuilder,
               private router: Router,
-              private validationService: ValidationService) {
+              validationService: ValidationService) {
+    super(validationService);
   }
 
-  newUser() {
 
-    let user = new FormModel('', '', '', '', {first: '', last: ''});
-
-    // (<FormGroup>this.registerForm).setValue(user, { onlySelf: true });
-    this.setFormModel(user);
-    this.active = false;
-
-    setTimeout(() => this.active = true, 0);
-
+  newFormModel() {
+    return new FormModel('', '', '', '', {first: '', last: ''});
   }
 
-  setFormModel(user) {
+  buildForm(formModel) {
+    super.buildForm(formModel);
     // todo: add a pattern?
     //todo: break out into its own module
-    let password = new FormControl(user.password, [<any>Validators.required, <any>Validators.minLength(8)]);
-    this.registerForm = this.formBuilder.group({
-      username: [user.username, [<any>Validators.required, <any>Validators.minLength(3), <any>Validators.maxLength(32)],
+    let password = new FormControl(formModel.password, [<any>Validators.required, <any>Validators.minLength(8)]);
+    this.form = this.formBuilder.group({
+      username: [formModel.username, [<any>Validators.required, <any>Validators.minLength(3), <any>Validators.maxLength(32)],
                                   this.validateUniqueUsername.bind(this)],
-      firstName: [user.name.first, [<any>Validators.required, <any>Validators.maxLength(32)]],
-      lastName: [user.name.last, [<any>Validators.minLength(3), <any>Validators.maxLength(32)]],
-      email: [user.email, [<any>Validators.required, <any>Validators.minLength(3),
+      firstName: [formModel.name.first, [<any>Validators.required, <any>Validators.maxLength(32)]],
+      lastName: [formModel.name.last, [<any>Validators.minLength(3), <any>Validators.maxLength(32)]],
+      email: [formModel.email, [<any>Validators.required, <any>Validators.minLength(3),
                             <any>Validators.pattern(re.email.complex.ascii.toString()), <any>Validators.maxLength(32)],
                             this.validateUniqueEmail.bind(this)],
       password: password,
-      confirm: [user.confirm, [CustomValidators.equalTo(password)]]
+      confirm: [formModel.confirm, [CustomValidators.equalTo(password)]]
     });
-    // todo: keep subscription and unsubscribe when the value changes
-    this.registerForm.valueChanges
-      .subscribe(data => this.onValueChanged(data));
-    this.registerForm.statusChanges
-      .subscribe(data => this.onValueChanged(data));
+    // update form subscriptions
+    this.onFormBuild(this.form);
   }
 
-  ngOnInit() {
-
-    let user = new FormModel('', '', '', '', {first: '', last: ''});
-    this.setFormModel(user);
-  }
-
-  logout() {
-
-    this.authService.logout()
-      .subscribe((res) => {
-        console.log(res);
-      }, (err) => {
-        console.error(err);
-      });
-
-  }
-
-  processUserData() {
-    this.submitted = true;
-    if (this.registerForm.invalid) {
-      // Set all fields to dirty and update the error messages
-      this.setAllTouched();
-      this.onValueChanged();
-      this.message = 'Please fill out all required fields';
-      return;
-    }
-
-    // todo: use active flag
-    this.active = true;
-    this.message = 'Registering user...';
-
-    let userData = new User(this.registerForm.controls['username'].value.toLowerCase(),
-      this.registerForm.controls['password'].value,
-      this.registerForm.controls['email'].value.toLowerCase(),
+  createRequest() {
+    return new User(this.form.controls['username'].value.toLowerCase(),
+      this.form.controls['password'].value,
+      this.form.controls['email'].value.toLowerCase(),
       {
-        first: this.registerForm.controls['firstName'].value.toLowerCase(),
-        last: this.registerForm.controls['lastName'].value.toLowerCase()
+        first: this.form.controls['firstName'].value.toLowerCase(),
+        last: this.form.controls['lastName'].value.toLowerCase()
       });
-    this.register(userData);
   }
 
-  register(user) {
-
+  submitRequest(user) {
     // Attempt to register
-    this.authService.register(user)
-      .subscribe((res) => {
-        // Toggle our `accepted` flag...
-        this.accepted = true;
-        // Toggle active flag
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this DEBUG statement
-        console.log(res);
-
-        // Reset our form...
-        this.newUser();
-        // Proceed to the `Login` component
-        this.router.navigate(['/login']);
-      }, (error) => {
-        this.accepted = false;
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this DEBUG statement
-        console.error(error);
-
-        // Set our message based on the server rejection reason
-        let body = error._body;
-        try {
-          body = error.json();
-        } catch(e) {}
-        this.message = body.message || body || error;
-      });
+    return this.authService.register(user)
   }
 
-  // Function invoked by the `CanDeactivate` router lifecycle hook when
-  // a user tries to leave this component view. If the form has been
-  // interacted with, query the user as to whether they intended to
-  // navigate away from the registration form before submission.
-  /*canDeactivate(): Observable<boolean> | boolean {
-   // Ask the user with a confirmation dialog service
-   if(!this.userForm.pristine && !this.accepted) {
-   return confirm('You haven\'t submitted your registration. Are you sure '
-   + 'you want to navigate away from this page?'); }
+  onSubmitSuccess(res) {
+    super.onSubmitSuccess(res);
+    // DEBUG
+    // TODO: Remove this DEBUG statement
+    console.log(res);
 
-   // Otherwise allow the user to navigate away from this component freely
-   else {
-   return true;
-   }
-   }*/
-  private validateUniqueEmailTimeout;
-
-  validateUniqueEmail(c: FormControl): any {
-    clearTimeout(this.validateUniqueEmailTimeout);
-    return new Promise((resolve, reject) => {
-      this.validateUniqueEmailTimeout = setTimeout(() => {
-        let v = c.value.toLowerCase();
-        this.validationService.validateEmail(v)
-          .subscribe((res) => {
-            if (res && res.emailTaken && res.emailTaken === true) {
-              resolve({'emailTaken': true})
-            } else {
-              resolve();
-            }
-          }, (err) => {
-            console.error('Email validation error:', err);
-          });
-      }, 600);
-    });
+    // Reset our form...
+    this.buildForm(this.newFormModel());
+    // Proceed to the `Login` component
+    this.router.navigate(['/login']);
   }
 
-  private validateUniqueUsernameTimeout;
+  onSubmitFail(err) {
+    super.onSubmitFail(err);
+    // DEBUG
+    // TODO: Remove this DEBUG statement
+    console.error(err);
 
-  validateUniqueUsername(c: FormControl): any {
-    clearTimeout(this.validateUniqueUsernameTimeout);
-    return new Promise((resolve, reject) => {
-      this.validateUniqueUsernameTimeout = setTimeout(() => {
-        let v = c.value.toLowerCase();
-        this.validationService.validateUsername(v)
-          .subscribe((res) => {
-            if (res && res.usernameTaken && res.usernameTaken === true) {
-              resolve({'usernameTaken': true})
-            } else {
-              resolve();
-            }          }, (err) => {
-            console.error('Username validation error:', err);
-          });
-      }, 600);
-    });
-  }
-
-  onValueChanged(data?: any) {
-    if (!this.registerForm) { return; }
-    const form = this.registerForm;
-
-    for (const field in this.formErrors) {
-      // clear previous error message (if any)
-      this.formErrors[field] = '';
-      const control = form.get(field);
-
-      if (control && control.touched && !control.valid) {
-        const messages = this.validationMessages[field];
-        for (const key in control.errors) {
-          this.formErrors[field] += (messages[key] + ' ') || '';
-        }
-      }
-    }
-  }
-
-  setAllTouched() {
-    for (const field in this.formErrors) {
-      const control = this.registerForm.get(field);
-      control.markAsTouched();
-    }
+    // Set our message based on the server rejection reason
+    let body = err._body;
+    try {
+      body = err.json();
+    } catch(e) {}
+    this.message = body.message || body || err;
   }
 
   formErrors = {
@@ -296,6 +163,6 @@ export class RegisterComponent {
 
   // TODO: Remove this when we are done
   get diagnostic() {
-    return JSON.stringify(this.registerForm.value);
+    return JSON.stringify(this.form.value);
   }
 }

@@ -2,7 +2,7 @@
   <h1 class="section-header">Reset Password</h1>
   <md-card>
     <md-card-content>
-      <form *ngIf="!accepted" [formGroup]="resetForm" novalidate (ngSubmit)="processInput()">
+      <form *ngIf="!accepted" [formGroup]="form" novalidate (ngSubmit)="onSubmit()">
         <h4>Enter {{!resetToken ? 'your current and' : ''}} your new password</h4>
         <div>
           <div *ngIf="!resetToken">
@@ -10,6 +10,9 @@
               <input mdInput type="password" name="password" formControlName="password"
                      placeholder="Current Password">
             </md-input-container>
+            <small class="form-error" *ngIf="formErrors.password">
+              {{ formErrors.password }}
+            </small>
           </div>
           <div>
             <md-input-container>

@@ -13,88 +13,69 @@ import {
 import {AppState} from '../../app.service';
 import {AuthService} from '../../shared/services/auth.service';
 import {FormModel} from './form.model';
+import {AbstractFormComponent} from "../../shared/components/Form.component";
+import {ValidationService} from "../../shared/services/validation.service";
 
 @Component({
   templateUrl: 'forgot.component.html',
   styleUrls: ['form.scss']
 })
-export class ForgotComponent {
+export class ForgotComponent extends AbstractFormComponent {
+  public formErrors = {
+    'email': ''
+  };
 
-  // The user login form is of type `FormGroup`
-  public forgotForm: FormGroup;
+  public validationMessages = {
+    'email': {
+      'required': 'Email or username is required'
+    }
+  };
 
-
-  // True as soon as the submit button has been hit the first time
-  public submitted:boolean = false;
-  // True when the server has confirmed a successful request
-  public accepted:boolean = false;
-  // True when waiting for a response from the server
-  public active:boolean = true;
-
-  // The message to display to the user
-  public message: string;
-
-  constructor(private appState: AppState,
-              private authService: AuthService,
+  constructor(private authService: AuthService,
               private formBuilder: FormBuilder,
-              private router: Router,
-              private route: ActivatedRoute) {
+              validationService: ValidationService) {
+    super(validationService);
   }
 
-  ngOnInit() {
+  newFormModel() {
+    return {email: ''};
+  }
 
-    this.forgotForm = this.formBuilder.group({
+  buildForm(formModel) {
+    super.buildForm(formModel);
+    this.form = this.formBuilder.group({
       email: ['', [<any>Validators.required]]
     });
+    this.onFormBuild(this.form);
   }
 
   //todo: add as you type check for email
-  processInput() {
-
-    this.submitted = true;
-    if (this.forgotForm.invalid) {
-      this.message = 'Please fill out all required fields';
-      return;
-    }
-    // todo: use active flag
-    this.active = true;
-    this.message = 'Sending Password Reset Email...';
-
-    this.sendForgot({email: this.forgotForm.controls['email'].value.toLowerCase()});
+  createRequest() {
+    return {email: this.form.controls['email'].value.toLowerCase()}
   }
 
-  sendForgot(query) {
 
-    this.authService.forgot(query)
-      .subscribe((res) => {
-        // Toggle our `accepted` flag...
-        this.accepted = true;
-        // Toggle active flag
-        this.active = false;
+  submitRequest(data: any): Observable<any> {
+    return this.authService.forgot(data);
+  }
 
-        // DEBUG
-        // TODO: Remove this DEBUG statement
-        console.log(res);
+  onSubmitSuccess(res) {
+    // DEBUG
+    // TODO: Remove this DEBUG statement
+    console.log(res);
 
+    this.message = res.message;
+  }
 
-        this.message = res.message;
+  onSubmitFail(err) {
+    // DEBUG
+    // TODO: Remove this debug statement
+    console.error(err);
 
-        //todo: is this correct?
-        // this.message = res.message;
-
-      }, (error) => {
-        this.accepted = false;
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this debug statement
-        console.error(error);
-
-        let body = error._body;
-        try {
-          body = error.json();
-        } catch(e) {}
-        this.message = body.message || body || error;
-      });
+    let body = err._body;
+    try {
+      body = err.json();
+    } catch(e) {}
+    this.message = body.message || body || err;
   }
 }

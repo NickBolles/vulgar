@@ -13,136 +13,18 @@ import { AppState } from '../../app.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { FormModel } from './form.model';
 import {CustomValidators} from "ng2-validation";
+import {AbstractFormComponent} from "../../shared/components/Form.component";
+import {ValidationService} from "../../shared/services/validation.service";
 
 @Component({
   templateUrl: 'reset.component.html',
   styleUrls: [ 'form.scss' ]
 })
-export class ResetComponent {
-
-  // The user login form is of type `FormGroup`
-  public resetForm: FormGroup;
+export class ResetComponent extends AbstractFormComponent{
 
   public user: any;
 
   public resetToken: string;
-
-  public submitted:boolean = false;
-  public accepted:boolean = false;
-  public active:boolean = true;
-
-  public message: string;
-
-  constructor(private appState: AppState,
-              private authService: AuthService,
-              private formBuilder: FormBuilder,
-              private router: Router,
-              private route: ActivatedRoute) { }
-
-
-  ngOnInit() {
-    this.resetToken = this.route.snapshot.params['token'];
-    let user = new FormModel('', '', '', '', this.resetToken);
-    let newPassword = new FormControl(user.newPassword, [<any>Validators.required, <any>Validators.minLength(8)]);
-    this.resetForm = this.formBuilder.group({
-      // Only require password if there is no reset token present
-      password: [user.password, ((!this.resetToken) ? <any>Validators.required : undefined)],
-      newPassword: newPassword,
-      confirm: [user.confirm, [CustomValidators.equalTo(newPassword)]],
-    });
-
-    this.resetForm.valueChanges
-      .subscribe(data => this.onValueChanged(data));
-    this.resetForm.statusChanges
-      .subscribe(data => this.onValueChanged(data));
-
-    this.authService.authenticate()
-      .subscribe((user) => {
-        this.user = user;
-      });
-
-  }
-
-  processInput() {
-    this.submitted = true;
-    if (this.resetForm.invalid) {
-      // Set all fields to dirty and update the error messages
-      this.setAllTouched();
-      this.onValueChanged();
-      this.message = 'Please fill out all required fields';
-      return;
-    }
-
-    let userData = { username: this.user.username,
-                     newPassword: this.resetForm.controls['newPassword'].value};
-    // Include the resetToken or the password, not both
-    if (this.resetToken) {
-      userData['resetToken'] = this.resetToken;
-    } else {
-      userData['password'] = this.resetForm.controls['password'].value
-    }
-    this.sendReset(userData);
-  }
-
-  sendReset(query) {
-
-    this.authService.reset(query)
-      .subscribe((res) => {
-        // Toggle our `accepted` flag...
-        this.accepted = true;
-        // Toggle active flag
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this DEBUG statement
-        console.log(res);
-
-
-        this.message = res.message;
-
-        //todo: is this correct?
-        // this.message = res.message;
-
-      }, (error) => {
-        this.accepted = false;
-        this.active = false;
-
-        // DEBUG
-        // TODO: Remove this debug statement
-        console.error(error);
-
-        let body = error._body;
-        try {
-          body = error.json();
-        } catch(e) {}
-        this.message = body.message || body || error;
-      });
-  }
-
-  onValueChanged(data?: any) {
-    if (!this.resetForm) { return; }
-    const form = this.resetForm;
-
-    for (const field in this.formErrors) {
-      // clear previous error message (if any)
-      this.formErrors[field] = '';
-      const control = form.get(field);
-
-      if (control && control.touched && !control.valid) {
-        const messages = this.validationMessages[field];
-        for (const key in control.errors) {
-          this.formErrors[field] += (messages[key] + ' ') || '';
-        }
-      }
-    }
-  }
-
-  setAllTouched() {
-    for (const field in this.formErrors) {
-      const control = this.resetForm.get(field);
-      control.markAsTouched();
-    }
-  }
 
   formErrors = {
     'password': '',
@@ -163,4 +45,76 @@ export class ResetComponent {
       'equalTo':       'New password and confirmation password must be equal'
     }
   };
+
+  constructor(private authService: AuthService,
+              private formBuilder: FormBuilder,
+              private route: ActivatedRoute,
+              validationService: ValidationService) {
+    super(validationService);
+  }
+
+  ngOnInit() {
+    this.resetToken = this.route.snapshot.params['token'];
+    super.ngOnInit();
+    this.authService.authenticate()
+      .first()
+      .subscribe((user) => {
+        this.user = user;
+      });
+
+  }
+
+  newFormModel() {
+    return new FormModel('', '', '', '', this.resetToken);
+  }
+
+  buildForm(formModel) {
+    super.buildForm(formModel);
+    let newPassword = new FormControl(formModel.newPassword, [<any>Validators.required, <any>Validators.minLength(8)]);
+    this.form = this.formBuilder.group({
+      // Only require password if there is no reset token present
+      password: [formModel.password, ((!this.resetToken) ? <any>Validators.required : undefined)],
+      newPassword: newPassword,
+      confirm: [formModel.confirm, [CustomValidators.equalTo(newPassword)]],
+    });
+    this.onFormBuild(this.form);
+  }
+
+  createRequest() {
+    let userData = { username: this.user.username,
+      newPassword: this.form.controls['newPassword'].value};
+    // Include the resetToken or the password, not both
+    if (this.resetToken) {
+      userData['resetToken'] = this.resetToken;
+    } else {
+      userData['password'] = this.form.controls['password'].value
+    }
+    return userData;
+  }
+
+  submitRequest(data) {
+    return this.authService.reset(data);
+  }
+
+  onSubmitSuccess(res) {
+    // DEBUG
+    // TODO: Remove this DEBUG statement
+    console.log(res);
+
+
+    this.message = res.message;
+  }
+  onSubmitFail(err) {
+    // DEBUG
+    // TODO: Remove this debug statement
+    console.error(err);
+
+    let body = err._body;
+    try {
+      body = err.json();
+    } catch(e) {}
+    this.message = body.message || body || err;
+  }
 }
+
+
