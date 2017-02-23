@@ -2,7 +2,7 @@
 import * as mongoose from 'mongoose';
 import './server.conf.ts';
 
-describe('App Tests', () => {
+/*describe('App Tests', () => {
   before(function(done: (err?: any) => void){
     mongoose.connection.on("connected", (ref) => {
       console.log('Mongoose connected, test passes');
@@ -18,5 +18,5 @@ describe('App Tests', () => {
   it('should run this!', () => {
     console.log("Yay this test works!");
   });
-});
+});*/
 

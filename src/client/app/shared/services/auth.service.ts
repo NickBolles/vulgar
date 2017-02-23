@@ -65,7 +65,7 @@ export class AuthService {
     this.appState.set('isAuthenticated', false);
 
     return this.http.post(`${ROUTE_URI}logout`,
-                          HEADER);
+                          HEADER)
                     .map(res => res.json());
   }
 
@@ -73,7 +73,7 @@ export class AuthService {
 
     return this.http.post(`${ROUTE_URI}register`,
                           JSON.stringify(user),
-                          HEADER);
+                          HEADER)
                     .map(res => res.json());
   }
 
