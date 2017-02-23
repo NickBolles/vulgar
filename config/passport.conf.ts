@@ -72,26 +72,16 @@ export default function passportConf(passport) {
   // ## Serialize User
   passport.serializeUser((user: UserDocument, done: any) => {
     let sessionUser = {
-      _id : user._id,
-      username : user.local.username,
-      role : user.role
+      _id : user._id
     };
-
-    // TODO: Figure out why this isn't working
-    /*user.local.email ? sessionUser = new SessionUser(user.local.username,
-                                                     user._id,
-                                                     user.local.email)
-                     : sessionUser = new SessionUser(user.local.username,
-                                                     user._id);*/
     done(null, sessionUser);
   });
 
   // ## Deserialize User
   passport.deserializeUser((sessionUser: any, done: any) => {
-    // The `sessionUser` object is different from the `user` mongoose
-    // collection. It is actually `req.session.passport.user` and comes
-    // from the `session` collection
-    done(null, sessionUser);
+    // Find the actual user from the database and attach it to req.user
+    Users.findById(sessionUser._id).then((user) => done(null, user))
+      .catch(done);
   });
 
   // # Local Signup
@@ -233,7 +223,7 @@ export default function passportConf(passport) {
             let mailOpts = extend(true, {
               to: newUser.local.email,
               context: {
-                url: `http://${req.headers['host']}/login`
+                url: `http://${req.headers['host']}/#/login`
               }
             }, EmailSettings.REGISTER);
 
@@ -358,10 +348,15 @@ export default function passportConf(passport) {
           // TODO: remove debug log
           console.log('Login failed with error', err);
           // This save saves the login array that was modified in user.login()
-          // This belongs in the
-          return user.save()
-            .then(() => err)
-            .catch(() => err);
+          // This belongs in the User.login function, but because Typescript doesnt recognize the Document
+          // methods inside of the class this isn't easy to achieve
+          return user.save((err) => {
+            console.log("User saved cb", err);
+          })
+            .then(() => {
+            console.log("User saved");
+              return err;
+            });
         })
         // After user is done saving the errors
         .then((err: IVerifyOptions) => {
