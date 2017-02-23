@@ -235,7 +235,7 @@ module Route {
           let mailOpts = extend(true, {
             to: user.local.email,
             context: {
-              url: `http://${req.headers['host']}/reset/${token}`
+              url: `http://${req.headers['host']}/#/reset/${token}`
             }
           }, EmailSettings.FORGOT);
           return new Promise((resolve, reject) => {
@@ -372,7 +372,7 @@ module Route {
           let mailOpts = extend(true, {
             to: user.local.email,
             context: {
-              forgotUrl: `http://${req.headers['host']}/forgot`
+              forgotUrl: `http://${req.headers['host']}/#/forgot`
             }
           }, EmailSettings.RESET);
           return new Promise((resolve, reject) => {
