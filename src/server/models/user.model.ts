@@ -25,6 +25,7 @@ import {UserTags} from "../../shared/user.tags";
 import {EnumUtils} from "../utils/EnumUtils";
 import * as extend from "extend";
 import {DocumentToObjectOptions} from "mongoose";
+import {isArray} from "../utils/TypeGuards";
 
 let Schema = mongoose.Schema;
 
@@ -359,7 +360,7 @@ export class User extends PublicUser implements IUser {
    */
   preSave(document: UserDocument, next): void {
     console.log(document.isModified('local.password'));
-    console.log('User Pre-save', arguments);
+    console.log('User Pre-save');
 
     if (document.isNew) {
       console.log("Document is new, setting created timestamp", document.created, getTimestamp());
@@ -414,7 +415,7 @@ let userSchema = new Schema({
     first: {type: String, required: true},
     last: {type: String}
   },
-  role : { type : String, enum: EnumUtils.getValues(UserRole), required: true, default: UserRole.User },
+  role : { type : Number, required: true, default: UserRole.User },
   local : {
     username : { type : String, unique : true },
     password : { type : String, unique : true },
@@ -430,7 +431,7 @@ let userSchema = new Schema({
   resetPasswordToken: {type: String, required: false},
   resetPasswordExpires: {type: Number, required: false},
 
-  tags : [{ type : String, enum: EnumUtils.getValues(UserTags)}],
+  tags : [{ type : Number }],
 
 });
 
@@ -458,3 +459,9 @@ export interface UserDocument extends User, mongoose.Document { }
 // Expose the `model` so that it can be imported and used in
 // the controller (to search, delete, etc.)
 export let Users = mongoose.model<UserDocument>('User', userSchema);
+
+
+
+export function isUserDocument(obj: any): obj is UserDocument {
+  return '_id' in obj && 'local' in obj && 'name' in obj && 'logins' in obj;
+}
