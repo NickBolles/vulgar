@@ -340,6 +340,9 @@ module Route {
           }
           console.log("resetting password to ", req.body.newPassword);
           user.local.password = req.body.newPassword;
+          // Reset password lock
+          user.lockUntil = 0;
+          user.loginAttempts = 0;
           user.resetPasswordExpires = undefined;
           user.resetPasswordToken = undefined;
           user.logins.push({
