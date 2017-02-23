@@ -21,6 +21,12 @@ import {ValidationService} from "../../shared/services/validation.service";
   styleUrls: ['form.scss']
 })
 export class ForgotComponent extends AbstractFormComponent {
+
+  messages = {
+    ...this.messages,
+    failed: 'Failed to send Forgot Password email. Please check your input and your connection, then try again'
+  };
+
   public formErrors = {
     'email': ''
   };
@@ -76,6 +82,6 @@ export class ForgotComponent extends AbstractFormComponent {
     try {
       body = err.json();
     } catch(e) {}
-    this.message = body.message || body || err;
+    this.message = body.message || this.messages.failed;
   }
 }

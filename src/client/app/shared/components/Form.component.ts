@@ -180,9 +180,17 @@ import {Subscription} from "rxjs";
  *        // For when the user is prompted whether they want to leave or not
  *        confirmLeave: ''
  *    }
+ *      - messages should be able to be extended with something like this (although typescript wont
+ *        resolve default variables in the derived class
+ *        ```
+ *            messages = {
+ *              ...this.messages,
+ *              myCustomMessage: 'Oh yea! Custom messages!'
+ *            }
+ *        ```
  *    - `message: ''` for storing the active message for the user
  *    - `submitted`: whether the user has attempted to submit the form or not
- *    - `accepted`: whether the form has been successfully submmitted or not
+ *    - `accepted`: whether the form has been successfully submitted or not
  *    - `active`: whether the form is pending submission or not
  *    - `_subscriptions`: a map of observable subscriptions that are cleaned up on ngOnDestroy()
  *
@@ -205,7 +213,7 @@ export abstract class AbstractFormComponent {
   public message: string;
 
   // hash of messages that can be overwritten by consumers
-  public messages: {[key: string] : string} = {
+  public messages = {
     invalid: 'Please fill out all required fields',
     active: 'Submitting...',
     confirmLeave: 'You haven\'t submitted your form. Are you sure ' +
@@ -268,7 +276,7 @@ export abstract class AbstractFormComponent {
 
 
   /**
-   * Ono submit check to see if the form is invalid.
+   * On submit check to see if the form is invalid.
    * If it is, set all of the components to touched and update the validation to show the errors
    *
    * otherwise set active to true, message to this.messages.active, call this.createRequest()
@@ -300,7 +308,7 @@ export abstract class AbstractFormComponent {
   /**
    * Submit the request and return the observable
    *
-   * Note: this must be the observabl, not the subscription that .subscribe return
+   * Note: this must be the observable, not the subscription that .subscribe return
    *       to handle the response use the this.onSubmitSuccess and the this.onSubmitFail
    * @param data
    */

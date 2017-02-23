@@ -48,8 +48,47 @@ const re = {
 })
 export class RegisterComponent extends AbstractFormComponent {
 
-  // The message to display to the user
-  public message: string;
+  messages = {
+    ...this.messages,
+    failed: 'Registration failed... Please check your inputs and connection, then try again'
+  };
+
+
+  formErrors = {
+    'username': '',
+    'firstName': '',
+    'email': '',
+    'password': '',
+    'confirm': ''
+  };
+
+  validationMessages = {
+    'username': {
+      'required':      'Username is required.',
+      'minlength':     'Username must be at least 3 characters long.',
+      'maxlength':     'Username cannot be more than 32 characters long.',
+      'usernameTaken': 'A User with that Username already exists'
+    },
+    'email': {
+      'required':      'Email is required.',
+      'minlength':     'Email must be at least 3 characters long.',
+      'maxlength':     'Email cannot be more than 32 characters long.',
+      'emailTaken':    'A User with that email address already exists',
+      'pattern':       'Email in an invalid format'
+    },
+    'firstName': {
+      'required':      'First name is required in order to personalize your experience'
+    },
+    'password': {
+      'required':      'Password is required',
+      'minlength':     'Password must be at least 8 characters'
+    },
+    'confirm': {
+      'required':      'Confirmation password is required',
+      'equalTo':       'Passwords must be equal'
+    }
+  };
+
 
   constructor(private appState: AppState,
               private authService: AuthService,
@@ -107,6 +146,8 @@ export class RegisterComponent extends AbstractFormComponent {
 
     // Reset our form...
     this.buildForm(this.newFormModel());
+
+    // todo: flash message to inform user of redirect
     // Proceed to the `Login` component
     this.router.navigate(['/login']);
   }
@@ -122,44 +163,9 @@ export class RegisterComponent extends AbstractFormComponent {
     try {
       body = err.json();
     } catch(e) {}
-    this.message = body.message || body || err;
+    // todo: add more description
+    this.message = body.message || this.messages.failed;
   }
-
-  formErrors = {
-    'username': '',
-    'firstName': '',
-    'email': '',
-    'password': '',
-    'confirm': ''
-  };
-
-  validationMessages = {
-    'username': {
-      'required':      'Username is required.',
-      'minlength':     'Username must be at least 3 characters long.',
-      'maxlength':     'Username cannot be more than 32 characters long.',
-      'usernameTaken': 'A User with that Username already exists'
-    },
-    'email': {
-      'required':      'Email is required.',
-      'minlength':     'Email must be at least 3 characters long.',
-      'maxlength':     'Email cannot be more than 32 characters long.',
-      'emailTaken':    'A User with that email address already exists',
-      'pattern':       'Email in an invalid format'
-    },
-    'firstName': {
-      'required':      'First name is required in order to personalize your experience'
-    },
-    'password': {
-      'required':      'Password is required',
-      'minlength':     'Password must be at least 8 characters'
-    },
-    'confirm': {
-      'required':      'Confirmation password is required',
-      'equalTo':       'Passwords must be equal'
-    }
-  };
-
 
   // TODO: Remove this when we are done
   get diagnostic() {

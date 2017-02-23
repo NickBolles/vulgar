@@ -26,6 +26,11 @@ export class ResetComponent extends AbstractFormComponent{
 
   public resetToken: string;
 
+  messages = {
+    ...this.messages,
+    resetFailed: 'Password reset failed... Please try again'
+  };
+
   formErrors = {
     'password': '',
     'newPassword': '',
@@ -46,15 +51,24 @@ export class ResetComponent extends AbstractFormComponent{
     }
   };
 
-  constructor(private authService: AuthService,
+  constructor(private appState: AppState,
+              private authService: AuthService,
               private formBuilder: FormBuilder,
               private route: ActivatedRoute,
+              private router: Router,
               validationService: ValidationService) {
     super(validationService);
   }
 
   ngOnInit() {
+    // Collect the needed information for the form before calling super.ngOnInit, which creates the form
     this.resetToken = this.route.snapshot.params['token'];
+    // todo: flash message to inform user of redirect
+    if ( !this.appState.get('isAuthenticated') && !this.resetToken ) {
+      this.router.navigate(['/forgot']);
+      return;
+    }
+    // Create the form
     super.ngOnInit();
     this.authService.authenticate()
       .first()
@@ -113,7 +127,7 @@ export class ResetComponent extends AbstractFormComponent{
     try {
       body = err.json();
     } catch(e) {}
-    this.message = body.message || body || err;
+    this.message = body.message || this.messages.resetFailed;
   }
 }
 

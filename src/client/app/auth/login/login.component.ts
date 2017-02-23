@@ -21,6 +21,12 @@ import {ValidationService} from "../../shared/services/validation.service";
   styleUrls: ['form.scss']
 })
 export class LoginComponent extends AbstractFormComponent{
+
+  messages = {
+    ...this.messages,
+    failed: 'Login failed... Please check your input and your connection, then try again'
+  };
+
   formErrors= {
     'username': '',
     'password': ''
