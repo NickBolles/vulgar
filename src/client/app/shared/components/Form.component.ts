@@ -8,12 +8,11 @@ import {
   FormGroup
 } from '@angular/forms';
 
-import {ValidationService} from "../../shared/services/validation.service";
+import {ValidationService} from '../services/validation.service';
 import {EqualValidator, UsernameValidator, EmailValidator} from '../shared/directives';
 import {FormModel} from './form.model';
 import {User} from './user.model';
-import {CustomValidators} from 'ng2-validation';
-import {Subscription} from "rxjs";
+import {Subscription} from 'rxjs';
 
 
 /**
@@ -23,9 +22,9 @@ import {Subscription} from "rxjs";
  * ```
  *
  *    <md-input-container>
- *         <input mdInput type="text" formControlName="firstName" placeholder="First Name">
+ *         <input mdInput type='text' formControlName='firstName' placeholder='First Name'>
  *    </md-input-container>
- *    <small class="form-error" *ngIf="formErrors.firstName">
+ *    <small class='form-error' *ngIf='formErrors.firstName'>
  *        {{ formErrors.firstName }}
  *    </small>
  * ```
@@ -94,9 +93,10 @@ import {Subscription} from "rxjs";
  *
  *
  * 4. Implement buildForm(formModel)
- *    note: calling super.buildForm(formModel) at the first line cleans up subscriptions from the previous form
- *    and calling this.onFormBuild(this.form) at the last line of this method adds subscriptions to the form on
- *    valueChanges and statusChanges and calls onValueChanges, to update the validation
+ *    note: calling super.buildForm(formModel) at the first line cleans up subscriptions from the
+ *    previous form and calling this.onFormBuild(this.form) at the last line of this method adds
+ *    subscriptions to the form on valueChanges and statusChanges and calls onValueChanges, to
+ *    update the validation
  * ```
  *    super.buildForm(formModel);
  *    this.form = this.formBuilder.group({
@@ -128,17 +128,20 @@ import {Subscription} from "rxjs";
  * 8. Hookup form control
  *    Add the following to the <form> element
  * ```
- *     [formGroup]="form" (ngSubmit)="onSubmit()" novalidate
+ *     [formGroup]='form' (ngSubmit)='onSubmit()' novalidate
  * ```
  *
+ * // todo: document blur
  *  How this works:
  *  onInit:
  *    - ngOnInit calls resetForm()
- *      - resetForm calls newFormModel() to build the data model and passes the result to buildForm()
+ *      - resetForm calls newFormModel() to build the data model and passes the
+ *        result to buildForm()
  *      - buildForm() should call super.buildForm(formModel) to unsubscribe from any previous forms
  *      - buildForm's implementation should then create the formGroup
- *      - then buildForm's implementation should call this.onFormBuild(this.form) to subscribe to valueChanges and
- *        statusChanges events on the form, which will ensure the validation is updated at each action
+ *      - then buildForm's implementation should call this.onFormBuild(this.form) to subscribe
+ *        to valueChanges and statusChanges events on the form, which will ensure the validation
+ *        is updated at each action
  *    - onSubmit() should be used as ngSubmit and on submit of the form it
  *      - sets this.submitted to true
  *      - checks if the form is invalid
@@ -157,19 +160,23 @@ import {Subscription} from "rxjs";
  *              - the default behavior
  *                - sets this.accepted = true
  *                - sets this.active = false;
- *              - any override of onSubmitSuccess should call super.onSubmitSuccess() on the first line to keep this default behavior
+ *              - any override of onSubmitSuccess should call super.onSubmitSuccess() on the first
+ *                line to keep this default behavior
  *            - if the request resulted in an error: this.onSubmitFail(err)
  *              - the default behavior
  *                - sets this.accepted = false;
  *                - sets this.active = false;
- *              - any override of onSubmitFail should call super.onSubmitFail() on the first line to keep this default behavior
+ *              - any override of onSubmitFail should call super.onSubmitFail() on the
+ *                first line to keep this default behavior
  *
  *
  * Extras:
  *    - `resetForm()`
- *      - resetForm calls newFormModel() to build the data model and passes the result to buildForm()
+ *      - resetForm calls newFormModel() to build the data model and passes the
+ *        result to buildForm()
  *    - `setAllTouched()`
- *      // todo: should this iterate the controls instead to set them all touched? or do we just care about the ones that
+ *      // todo: should this iterate the controls instead to set
+ *               them all touched? or do we just care about the ones that
  *      // can contain errors?
  *      - Iterates fields in formErrors and sets them all to touched
  *    - messages: {
@@ -200,7 +207,7 @@ export abstract class AbstractFormComponent {
 
   public form: FormGroup;
 
-  public _subscriptions: {[key: string]: Subscription} = {};
+  public _subscriptions: Subscription[] = [];
 
   // True as soon as the submit button has been hit the first time
   public submitted: boolean = false;
@@ -220,6 +227,16 @@ export abstract class AbstractFormComponent {
                   'you want to navigate away from this page?'
   };
 
+  abstract formErrors: {[key: string]: string};
+
+  abstract validationMessages: {[key: string]: {[key: string]: string}};
+
+  public invertValidateUniqueEmail = false;
+  public invertValidateUniqueUsername = false;
+  private validateUniqueEmailTimeout;
+  private validateUniqueUsernameTimeout;
+
+
   constructor(private validationService: ValidationService) {
   }
 
@@ -232,11 +249,10 @@ export abstract class AbstractFormComponent {
   }
 
   ngOnDestroy() {
-    for (let key in this._subscriptions) {
-      if(this._subscriptions[key].unsubscribe) {
-        this._subscriptions[key].unsubscribe();
-      }
-    }
+    this._subscriptions.forEach((val) => {
+      val.unsubscribe();
+    });
+    this._subscriptions = [];
   }
   resetForm() {
     this.buildForm(this.newFormModel());
@@ -254,12 +270,8 @@ export abstract class AbstractFormComponent {
    * @param formModel
    */
   buildForm(formModel) {
-    if (this._subscriptions['formValueChanges'] && this._subscriptions['formValueChanges'].unsubscribe) {
-      this._subscriptions['formValueChanges'].unsubscribe();
-    }
-    if (this._subscriptions['formStatusChanges'] && this._subscriptions['formStatusChanges'].unsubscribe) {
-      this._subscriptions['formStatusChanges'].unsubscribe();
-    }
+    // cleanup subscriptions on previous form
+    this.ngOnDestroy();
   }
 
   /**
@@ -268,10 +280,21 @@ export abstract class AbstractFormComponent {
    * @param form
    */
   onFormBuild(form: FormGroup) {
-    this._subscriptions['formValueChanges'] = form.valueChanges
-      .subscribe(data => this.onValueChanged(data));
-    this._subscriptions['formStatusChanges'] = form.statusChanges
-      .subscribe(data => this.onValueChanged(data));
+    this._subscriptions.push(form.valueChanges
+      .subscribe((data) => this.onValueChanged(data)));
+    this._subscriptions.push(form.statusChanges
+      .subscribe((data) => this.onValueChanged(data)));
+
+    // subscribe to every controls status changes
+    // for (let ctrlName in form.controls) {
+    //   if(form.controls.hasOwnProperty(ctrlName)) {
+    //     console.log('subscribing to ', ctrlName);
+    //     this._subscriptions.push(form.controls[ctrlName].valueChanges
+    //       .subscribe((data) => {
+    //         this.onValueChanged(data);
+    //       }));
+    //   }
+    // }
   }
 
 
@@ -298,6 +321,10 @@ export abstract class AbstractFormComponent {
       .first()
       .subscribe((res) => this.onSubmitSuccess(res),
                  (err) => this.onSubmitFail(err)); /* todo: standardize error? */
+  }
+
+  onBlur() {
+    return this.onValueChanged();
   }
 
   /**
@@ -333,9 +360,8 @@ export abstract class AbstractFormComponent {
     // Ask the user with a confirmation dialog service
     if (!this.form.pristine && !this.accepted) {
       return confirm(this.messages.confirmLeave);
-    }
+    } else {
     // Otherwise allow the user to navigate away from this component freely
-    else {
       return true;
     }
   }
@@ -343,8 +369,7 @@ export abstract class AbstractFormComponent {
 
   // Validators
 
-  private validateUniqueEmailTimeout;
-  invertValidateUniqueEmail = false;
+
   validateUniqueEmail(c: FormControl): any {
     clearTimeout(this.validateUniqueEmailTimeout);
     return new Promise((resolve, reject) => {
@@ -356,7 +381,7 @@ export abstract class AbstractFormComponent {
               if (this.invertValidateUniqueEmail) {
                 return resolve();
               }
-              resolve({'emailTaken': true})
+              resolve({'emailTaken': true});
             } else {
               if (this.invertValidateUniqueEmail) {
                 return resolve({'emailTaken': true});
@@ -370,8 +395,6 @@ export abstract class AbstractFormComponent {
     });
   }
 
-  private validateUniqueUsernameTimeout;
-  invertValidateUniqueUsername = false;
   validateUniqueUsername(c: FormControl): any {
     clearTimeout(this.validateUniqueUsernameTimeout);
     return new Promise((resolve, reject) => {
@@ -383,7 +406,7 @@ export abstract class AbstractFormComponent {
               if (this.invertValidateUniqueUsername) {
                 return resolve();
               }
-              resolve({'usernameTaken': true})
+              resolve({'usernameTaken': true});
             } else {
               if (this.invertValidateUniqueUsername) {
                 return resolve({'usernameTaken': true});
@@ -401,14 +424,18 @@ export abstract class AbstractFormComponent {
     const form = this.form;
 
     for (const field in this.formErrors) {
-      // clear previous error message (if any)
-      this.formErrors[field] = '';
-      const control = form.get(field);
+      if (this.formErrors.hasOwnProperty(field)) {
+        // clear previous error message (if any)
+        this.formErrors[field] = '';
+        const control = form.get(field);
 
-      if (control && control.touched && !control.valid) {
-        const messages = this.validationMessages[field];
-        for (const key in control.errors) {
-          this.formErrors[field] += (messages[key] + ' ') || '';
+        if (control && control.touched && !control.valid) {
+          const messages = this.validationMessages[field];
+          for (const key in control.errors) {
+            if (control.errors.hasOwnProperty(key)) {
+              this.formErrors[field] += (messages[key] + ' ') || '';
+            }
+          }
         }
       }
     }
@@ -416,14 +443,12 @@ export abstract class AbstractFormComponent {
 
   setAllTouched() {
     for (const field in this.formErrors) {
-      const control = this.form.get(field);
-      control.markAsTouched();
+      if (this.formErrors.hasOwnProperty(field)) {
+        const control = this.form.get(field);
+        control.markAsTouched();
+      }
     }
   }
-
-  abstract formErrors: {[key: string]: string};
-
-  abstract validationMessages: {[key: string]: {[key: string]: string}};
 
   // TODO: Remove this when we are done
   get diagnostic() {

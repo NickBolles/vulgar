@@ -6,20 +6,22 @@
         <div>
           <div>
             <md-input-container>
-              <input mdInput type="text" formControlName="username" placeholder="Username or Email">
+              <input mdInput type="text" formControlName="username"
+                     placeholder="Username or Email" (blur)="onBlur()">
+              <md-hint class="form-error" *ngIf="formErrors.username">
+                    {{formErrors.username}}
+              </md-hint>
             </md-input-container>
-            <small class="form-error" *ngIf="formErrors.username">
-                  {{formErrors.username}}
-            </small>
           </div>
 
           <div>
             <md-input-container>
-              <input mdInput type="password" formControlName="password" placeholder="Password">
+              <input mdInput type="password" formControlName="password"
+                     placeholder="Password" (blur)="onBlur()">
+              <md-hint class="form-error" *ngIf="formErrors.password">
+                    {{formErrors.password}}
+              </md-hint>
             </md-input-container>
-            <small class="form-error" *ngIf="formErrors.password">
-                  {{formErrors.password}}
-            </small>
           </div>
         </div>
         <div>
@@ -31,6 +33,7 @@
           </button>
         </div>
         <div>
+          <br />
           <button md-button color="primary" type="button" [routerLink]=" ['/forgot'] ">
             Forgot Password
           </button>
@@ -61,8 +64,8 @@
 <div *ngIf="!appState.get('isAuthenticated')">
   <div>
     <div>loginForm details:</div>
-    <pre>Is loginForm valid?: <br>{{loginForm.valid | json}}</pre>
+    <pre>Is loginForm valid?: <br>{{form.valid | json}}</pre>
     <pre>Is loginForm submitted?: <br>{{submitted | json}}</pre>
-    <pre>loginForm value: <br>{{loginForm.value | json}}</pre>
+    <pre>loginForm value: <br>{{form.value | json}}</pre>
   </div>
 </div>

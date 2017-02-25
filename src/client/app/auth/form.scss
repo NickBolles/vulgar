@@ -1,0 +1,19 @@
+  @import '~@angular/material/core/theming/theming';
+  @import '~@angular/material/core/style/_variables';
+  @import '../../sass/themes/_default.scss';
+
+.form-error {
+  color: mat-color(map-get($theme, warn));
+}
+.form-valid {
+  color: mat-color($mat-green, 500);
+}
+
+md-input-container {
+  transition: $swift-ease-in;
+  &.ng-invalid.ng-touched {
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+    transition: $swift-ease-out;
+  }
+}

@@ -8,30 +8,30 @@
           <div *ngIf="!resetToken">
             <md-input-container>
               <input mdInput type="password" name="password" formControlName="password"
-                     placeholder="Current Password">
+                     placeholder="Current Password" (blur)="onBlur()">
+              <md-hint class="form-error" *ngIf="formErrors.password">
+                {{ formErrors.password }}
+              </md-hint>
             </md-input-container>
-            <small class="form-error" *ngIf="formErrors.password">
-              {{ formErrors.password }}
-            </small>
           </div>
           <div>
             <md-input-container>
               <input mdInput type="password" name="newPassword" formControlName="newPassword"
-                     placeholder="Password">
+                     placeholder="Password" (blur)="onBlur()">
+              <md-hint class="form-error" *ngIf="formErrors.newPassword">
+                {{ formErrors.newPassword }}
+              </md-hint>
             </md-input-container>
-            <small class="form-error" *ngIf="formErrors.newPassword">
-              {{ formErrors.newPassword }}
-            </small>
           </div>
 
           <div>
             <md-input-container>
               <input mdInput type="password" name="confirm" formControlName="confirm"
-                     placeholder="Confirm Password">
+                     placeholder="Confirm Password" (blur)="onBlur()">
+              <md-hint class="form-error" *ngIf="formErrors.confirm">
+                {{ formErrors.confirm }}
+              </md-hint>
             </md-input-container>
-            <small class="form-error" *ngIf="formErrors.confirm">
-              {{ formErrors.confirm }}
-            </small>
           </div>
         </div>
         <div>
