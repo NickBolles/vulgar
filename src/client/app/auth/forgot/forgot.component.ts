@@ -13,18 +13,19 @@ import {
 import {AppState} from '../../app.service';
 import {AuthService} from '../../shared/services/auth.service';
 import {FormModel} from './form.model';
-import {AbstractFormComponent} from "../../shared/components/Form.component";
-import {ValidationService} from "../../shared/services/validation.service";
+import {AbstractFormComponent} from '../../shared/components/Form.component';
+import {ValidationService} from '../../shared/services/validation.service';
 
 @Component({
   templateUrl: 'forgot.component.html',
-  styleUrls: ['form.scss']
+  styleUrls: ['../form.scss']
 })
 export class ForgotComponent extends AbstractFormComponent {
 
   messages = {
     ...this.messages,
-    failed: 'Failed to send Forgot Password email. Please check your input and your connection, then try again'
+    failed: 'Failed to send Forgot Password email. ' +
+    'Please check your input and your connection, then try again'
   };
 
   public formErrors = {
@@ -37,7 +38,8 @@ export class ForgotComponent extends AbstractFormComponent {
     }
   };
 
-  constructor(private authService: AuthService,
+  constructor(private appState: AppState,
+              private authService: AuthService,
               private formBuilder: FormBuilder,
               validationService: ValidationService) {
     super(validationService);
@@ -55,9 +57,9 @@ export class ForgotComponent extends AbstractFormComponent {
     this.onFormBuild(this.form);
   }
 
-  //todo: add as you type check for email
+  // todo: add as you type check for email
   createRequest() {
-    return {email: this.form.controls['email'].value.toLowerCase()}
+    return {email: this.form.controls['email'].value.toLowerCase()};
   }
 
 
@@ -81,7 +83,7 @@ export class ForgotComponent extends AbstractFormComponent {
     let body = err._body;
     try {
       body = err.json();
-    } catch(e) {}
+    } catch (e) {}
     this.message = body.message || this.messages.failed;
   }
 }

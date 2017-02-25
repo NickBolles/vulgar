@@ -5,7 +5,7 @@
  * @param {object} obj - object to check
  */
 let isFunction = (obj) => {
-  return typeof obj == 'function' || false;
+  return typeof obj === 'function' || false;
 };
 
 /**
@@ -23,7 +23,7 @@ export default class Emitter {
    * @class Server
    * @constructor
    */
-  constructor(){
+  constructor() {
     // Initialize an empty `Map` for tracking listeners
     this.listeners = new Map();
   }
@@ -79,9 +79,9 @@ export default class Emitter {
         index;
 
     if (listeners && listeners.length) {
-      index = listeners.reduce((i, listener, index) => {
+      index = listeners.reduce((i, listener, idx) => {
         return (isFunction(listener) && listener === callback)
-          ? i = index
+          ? i = idx
           : i;
       }, -1);
 

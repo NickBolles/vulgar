@@ -15,7 +15,8 @@ export class AuthGuard implements CanActivate, CanActivateChild {
               private authService: AuthService,
               private router: Router) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+  canActivate(route: ActivatedRouteSnapshot,
+              state: RouterStateSnapshot): Observable<boolean> | boolean {
     // DEBUG
     // TODO: Remove this DEBUG statement
     console.log('AuthGuard#canActivate called');
@@ -25,7 +26,8 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return this.isUserAuthenticated(url);
   }
 
-  canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean  {
+  canActivateChild(route: ActivatedRouteSnapshot,
+                   state: RouterStateSnapshot): Observable<boolean> | boolean  {
     return this.canActivate(route, state);
   }
 
@@ -33,7 +35,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
     return this.authService.authenticate().map((res) => {
 
-      if(res === 0) {
+      if (res === 0) {
 
         // Store the attempted URL for redirecting.
         this.authService.redirectUrl = url;
@@ -52,7 +54,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
       }
     }, (err) => {
-      console.error(err)
+      console.error(err);
     });
   }
 }

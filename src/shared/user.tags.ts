@@ -5,5 +5,5 @@
 export enum UserTags {
   REGISTRATION_EMAIL_FAILED,
   ADMIN
-  //todo: add league manager
+  // todo: add league manager
 }

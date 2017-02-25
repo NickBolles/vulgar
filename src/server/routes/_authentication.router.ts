@@ -1,17 +1,15 @@
 import * as express from 'express';
 import * as passport from 'passport';
 // Load `User` `interfaces`, `class`, and `model`
-import {IUser, User, UserDocument, Users, PublicUser} from '../models/user.model';
+import {User, UserDocument, Users, PublicUser} from '../models/user.model';
 
 import Router from './router';
 
-import * as bcrypt from 'bcrypt';
 import * as extend from 'extend';
-import {getTimestamp} from "../utils/moment";
-import moment = require("moment");
-import mailer from "../../../config/emailer.conf";
-import {SimpleError} from "../utils/SimpleError";
-import {EmailSettings} from "../../../config/emailer.conf";
+import {getTimestamp} from '../utils/moment';
+import moment = require('moment');
+import mailer from '../../../config/emailer.conf';
+import {EmailSettings} from '../../../config/emailer.conf';
 import * as crypto  from 'crypto';
 
 // Load the Mongoose ObjectId function to cast string as
@@ -20,7 +18,7 @@ let ObjectId = require('mongoose').Types.ObjectId;
 
 const BASE_URI = '/auth';
 
-module Route {
+namespace Route {
 
   export class Routes extends Router {
 
@@ -70,7 +68,7 @@ module Route {
         });
 
       router.route(`${BASE_URI}/logout`)
-        .post((req, res, next) => {
+        .post((req, res) => {
           this.logout(req, res);
         });
 
@@ -87,7 +85,7 @@ module Route {
 
       // Completes forgotten password request, or password change
       router.route(`${BASE_URI}/reset`)
-        .post((req,res,next) => {
+        .post((req, res, next) => {
           this.doReset(req, res, next);
         });
 
@@ -102,10 +100,10 @@ module Route {
                    res: express.Response) {
       Users.remove({
         // Model.find `$or` Mongoose condition
-        $or : [
-          { 'local.username' : req.params.uid.toLowerCase() },
-          { 'local.email' : req.params.uid.toLowerCase() },
-          { '_id' : ObjectId(req.params.uid) }
+        $or: [
+          {'local.username': req.params.uid.toLowerCase()},
+          {'local.email': req.params.uid.toLowerCase()},
+          {'_id': ObjectId(req.params.uid)}
         ]
       }, (err: any) => {
         // If there are any errors, return them
@@ -144,14 +142,14 @@ module Route {
         }
         // Use login function exposed by Passport to establish a login
         // session
-        req.login(user, (err: any) => {
-          if (err)
-            return next(err);
+        req.login(user, (er: any) => {
+          if (er)
+            return next(er);
           // Set HTTP status code `200 OK`
           // Return the user object
           res.status(200).json(new PublicUser(req.user));
         });
-      }) (req, res, next);
+      })(req, res, next);
     }
 
     private logout(req: express.Request,
@@ -183,10 +181,13 @@ module Route {
           // Return the info message
           return next(info.message);
         }
-         res.status(200).json({user: new PublicUser(user), message: info.message || 'Account created'});
+        res.status(200).json({
+          user: new PublicUser(user),
+          message: info.message || 'Account created'
+        });
         next();
         // Set HTTP status code `204 No Content`
-      }) (req, res, next);
+      })(req, res, next);
     }
 
     /**
@@ -205,11 +206,11 @@ module Route {
      * @param next
      */
     private forgot(req: express.Request,
-                     res: express.Response,
-                     next: express.NextFunction) {
+                   res: express.Response,
+                   next: express.NextFunction) {
 
       Users.findOne({
-        $or:[
+        $or: [
           {'local.username': req.body.email.toLowerCase()},
           {'local.email': req.body.email.toLowerCase()}
         ]
@@ -217,20 +218,23 @@ module Route {
       // We need to type the return of this promise because typescript cant (yet) infer it
         .then<[UserDocument, string]>((user: UserDocument) => {
           if (!user) {
-            return Promise.reject({message: `Unable to find user "${req.body.email}"`, statusCode: 400});
+            return Promise.reject({
+              message: `Unable to find user "${req.body.email}"`,
+              statusCode: 400
+            });
           }
-          return Promise.all([user, this.getResetToken()])
+          return Promise.all([user, this.getResetToken()]);
         })
         // Use Array destructuring to assign arguments[0] to user and arguments[1] to token
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+        // https://goo.gl/aevqA9
         .then(([user, token]) => {
           user.resetPasswordToken = token;
           user.resetPasswordExpires = getTimestamp(moment().add(120, 'minutes'));
           return Promise.all([user, token, user.save()]);
         })
-        //todo: move this to user?
+        // todo: move this to user?
         // Use Array destructuring to assign arguments[0] to user and arguments[1] to token
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+        // https://goo.gl/aevqA9
         .then(([user, token]) => {
           let mailOpts = extend(true, {
             to: user.local.email,
@@ -248,18 +252,19 @@ module Route {
           });
         })
         .then((message) => {
-            res.status(200).json({message: message});
+          res.status(200).json({message: message});
         })
         .catch((err) => {
           res.status(err.statusCode || 500);
           next(err.message || err);
-        })
+        });
     }
 
     /**
-     * The entry point for resetting the users password. This method will check req.body.resetToken to see if
-     * there is a token. If there is then it will branch off to a forgot password reset, if not it will branch to
-     * a password reset and validate that req.body.password is a valid password before replacing it with req.body.newPassword
+     * The entry point for resetting the users password. This method will check req.body.resetToken
+     * to see if there is a token. If there is then it will branch off to a forgot password reset,
+     * if not it will branch to a password reset and validate that req.body.password is a valid
+     * password before replacing it with req.body.newPassword
      * @param req
      * @param res
      * @param next
@@ -275,7 +280,8 @@ module Route {
     }
 
     /**
-     * Reset the users password by authenticating with the resetPasswordToken that was sent to their email
+     * Reset the users password by authenticating with the
+     * resetPasswordToken that was sent to their email
      *
      * @param req
      * @param res
@@ -284,13 +290,12 @@ module Route {
     private doForgotReset(req: express.Request,
                           res: express.Response,
                           next: express.NextFunction) {
-      let query = Users.findOne({ resetPasswordToken: req.body.resetToken, resetPasswordExpires: { $gt: Date.now() } }).exec();
+      let query = Users.findOne({
+        resetPasswordToken: req.body.resetToken,
+        resetPasswordExpires: {$gt: Date.now()}
+      }).exec();
       // Continue with the reset process that is the same for both doPassReset and doForgotReset
       this.completeReset(query, req, res, next);
-      query.catch((err) => {
-        res.status(err.statusCode || 500);
-        next(err.message || err);
-      })
     }
 
     /**
@@ -314,7 +319,7 @@ module Route {
         }
         // Continue with the reset process that is the same for both doPassReset and doForgotReset
         this.completeReset(Promise.resolve(user as UserDocument), req, res, next);
-      }) (req, res, next);
+      })(req, res, next);
     }
 
     /**
@@ -328,17 +333,21 @@ module Route {
      * @param promise
      * @param req
      * @param res
+     * @param next
      */
     private completeReset(promise: Promise<UserDocument>,
                           req: express.Request, res: express.Response, next: express.NextFunction) {
 
       promise
       // We need to explicitly type the return of the promise because typescript can't infer it
-      .then<[UserDocument]>((user: UserDocument) => {
+        .then<[UserDocument]>((user: UserDocument) => {
           if (!user) {
-            return Promise.reject({message: 'Password reset token is invalid or has expired.', statusCode: 400})
+            return Promise.reject({
+              message: 'Password reset token is invalid or has expired.',
+              statusCode: 400
+            });
           }
-          console.log("resetting password to ", req.body.newPassword);
+          console.log('resetting password to ', req.body.newPassword);
           user.local.password = req.body.newPassword;
           // Reset password lock
           user.lockUntil = 0;
@@ -352,22 +361,24 @@ module Route {
           });
           return Promise.all<UserDocument>([user, user.save()]);
         })
-      // Use Array destructuring to assign arguments[0] to user and ignore the result of user.save()
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
-        // Also we need to explicitly type the return of the promise because typescript can't infer it
+        // Use Array destructuring to assign arguments[0] to user and ignore the result of
+        // user.save()
+        // https://goo.gl/aevqA9
+        // Also we need to explicitly type the return of the promise because
+        // typescript can't infer it
         .then<[UserDocument, string]>(([user]) => {
           return new Promise((resolve, reject) => {
-            console.log("login");
+            console.log('login');
             req.login(user, (err) => {
               if (err) {
                 return Promise.reject({message: 'Error establishing session', statusCode: 500});
               }
-              resolve([user, 'Password Reset and login successful!'])
-            })
-          })
+              resolve([user, 'Password Reset and login successful!']);
+            });
+          });
         })
         // Use Array destructuring to assign arguments[0] to user and arguments[1] to message
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+        // https://goo.gl/aevqA9
         .then(([user, message]) => {
           let mailOpts = extend(true, {
             to: user.local.email,
@@ -376,10 +387,13 @@ module Route {
             }
           }, EmailSettings.RESET);
           return new Promise((resolve, reject) => {
-            console.log("Sending Password reset confirmation email");
+            console.log('Sending Password reset confirmation email');
             mailer.sendMail(mailOpts, (err) => {
               if (err) {
-                return reject({message: message + ' Unable to send confirmation email', statusCode: 500});
+                return reject({
+                  message: message + ' Unable to send confirmation email',
+                  statusCode: 500
+                });
               }
               return resolve(message + ' Confirmation email sent.');
             });
@@ -387,22 +401,24 @@ module Route {
         })
         .then((message) => {
           // Return the public user object
-          res.status(200).json({ user: new PublicUser(req.user), message: message});
+          res.status(200).json({user: new PublicUser(req.user), message: message});
         })
         .catch((err) => {
-          console.log("Error in completeReset", err);
+          console.log('Error in completeReset', err);
           res.status(err.statusCode || 500);
           next(err.message || err);
-        })
+        });
     }
 
     private getResetToken(): Promise<String> {
       return new Promise((resolve, reject) => {
         crypto.randomBytes(16, (err, buf) => {
-          if (err) {reject(err);}
-          resolve(buf.toString('hex'))
-        })
-      })
+          if (err) {
+            reject(err);
+          }
+          resolve(buf.toString('hex'));
+        });
+      });
     }
   }
 }

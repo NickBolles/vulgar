@@ -7,7 +7,7 @@ import { createInputTransfer,
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule, XHRBackend } from '@angular/http';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from "@angular/material";
+import { MaterialModule } from '@angular/material';
 
 /*
  * Platform and Environment providers/directives/pipes

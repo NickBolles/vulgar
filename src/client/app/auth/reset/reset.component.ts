@@ -12,15 +12,15 @@ import { FormBuilder,
 import { AppState } from '../../app.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { FormModel } from './form.model';
-import {CustomValidators} from "ng2-validation";
-import {AbstractFormComponent} from "../../shared/components/Form.component";
-import {ValidationService} from "../../shared/services/validation.service";
+import {CustomValidators} from 'ng2-validation';
+import {AbstractFormComponent} from '../../shared/components/Form.component';
+import {ValidationService} from '../../shared/services/validation.service';
 
 @Component({
   templateUrl: 'reset.component.html',
-  styleUrls: [ 'form.scss' ]
+  styleUrls: [ '../form.scss' ]
 })
-export class ResetComponent extends AbstractFormComponent{
+export class ResetComponent extends AbstractFormComponent {
 
   public user: any;
 
@@ -61,7 +61,8 @@ export class ResetComponent extends AbstractFormComponent{
   }
 
   ngOnInit() {
-    // Collect the needed information for the form before calling super.ngOnInit, which creates the form
+    // Collect the needed information for the form before
+    // calling super.ngOnInit, which creates the form
     this.resetToken = this.route.snapshot.params['token'];
     // todo: flash message to inform user of redirect
     if ( !this.appState.get('isAuthenticated') && !this.resetToken ) {
@@ -84,7 +85,8 @@ export class ResetComponent extends AbstractFormComponent{
 
   buildForm(formModel) {
     super.buildForm(formModel);
-    let newPassword = new FormControl(formModel.newPassword, [<any>Validators.required, <any>Validators.minLength(8)]);
+    let newPassword = new FormControl(formModel.newPassword,
+                                      [<any>Validators.required, <any>Validators.minLength(8)]);
     this.form = this.formBuilder.group({
       // Only require password if there is no reset token present
       password: [formModel.password, ((!this.resetToken) ? <any>Validators.required : undefined)],
@@ -101,7 +103,7 @@ export class ResetComponent extends AbstractFormComponent{
     if (this.resetToken) {
       userData['resetToken'] = this.resetToken;
     } else {
-      userData['password'] = this.form.controls['password'].value
+      userData['password'] = this.form.controls['password'].value;
     }
     return userData;
   }
@@ -126,7 +128,7 @@ export class ResetComponent extends AbstractFormComponent{
     let body = err._body;
     try {
       body = err.json();
-    } catch(e) {}
+    } catch (e) { }
     this.message = body.message || this.messages.resetFailed;
   }
 }

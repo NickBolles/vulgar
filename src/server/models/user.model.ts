@@ -16,16 +16,16 @@ import mongoose = require('mongoose');
 
 // Import library to hash passwords
 import * as bcrypt from 'bcrypt';
-import {getTimestamp, parseTimestamp} from "../utils/moment";
-import moment = require("moment");
-import {ILogin, LoginSchema} from "./login.schema";
-import {SimpleError} from "../utils/SimpleError";
+import {getTimestamp, parseTimestamp} from '../utils/moment';
+import moment = require('moment');
+import {ILogin, LoginSchema} from './login.schema';
+import {SimpleError} from '../utils/SimpleError';
 import {UserRole} from '../../shared/user.roles';
-import {UserTags} from "../../shared/user.tags";
-import {EnumUtils} from "../utils/EnumUtils";
-import * as extend from "extend";
-import {DocumentToObjectOptions} from "mongoose";
-import {isArray} from "../utils/TypeGuards";
+import {UserTags} from '../../shared/user.tags';
+import {EnumUtils} from '../utils/EnumUtils';
+import * as extend from 'extend';
+import {DocumentToObjectOptions} from 'mongoose';
+import {isArray} from '../utils/TypeGuards';
 
 let Schema = mongoose.Schema;
 
@@ -38,7 +38,7 @@ export interface IPublicUser {
   name: {
     first: string;
     last: string;
-  }
+  };
 
   role: UserRole;
   local: {
@@ -116,23 +116,24 @@ export class PublicUser implements IPublicUser {
       lastLogin: this.lastLogin,
       loginAttempts: this.loginAttempts,
       lockUntil: this.lockUntil
-    }
+    };
   }
 }
 
 
-export interface IUser  extends IPublicUser{
+export interface IUser  extends IPublicUser {
   local: {
     username: string;
     password: string;
     email: string;
   };
-  logins: ILogin[]
+
+  logins: ILogin[];
 
   resetPasswordToken: string;
   resetPasswordExpires: number;
 
-  tags: UserTags[]
+  tags: UserTags[];
 }
 
 /**
@@ -188,15 +189,17 @@ export class User extends PublicUser implements IUser {
    * @returns {Promise<TResult|boolean>}
    */
   login(password): Promise<boolean | SimpleError> {
-    console.log("Logging in ");
+    console.log('Logging in ');
     // Increment the login attempts and check if the user is locked
     // This handles checking if the lock is expired also
     let locked = this.incLoginAttempt();
     return this.validPassword(password)
       .then((valid) => {
-        console.log("password valid? ", valid, password, this.local.password);
+        console.log('password valid? ', valid, password, this.local.password);
         if (locked) {
-          return Promise.reject(`Account is locked. Please Try again ${this.remainingLockReadable()}, or reset your password with the "forgot password" link`)
+          return Promise.reject(`Account is locked. Please Try again ` +
+            `${this.remainingLockReadable()}, or reset your password with the ` +
+            `'forgot password' link`);
         } else if (!valid) {
           return Promise.reject('Invalid Password');
         }
@@ -205,18 +208,19 @@ export class User extends PublicUser implements IUser {
         return this.onLogin();
       })
       .catch((err) => {
-        console.log("Log In Failed", err);
+        console.log('Log In Failed', err);
           this.logins.push({
             time: getTimestamp(),
             success: false,
             result: err});
           // Todo: figure out how to make this work,
           // Typescript doesnt know that instances of Users
-          // Will always be UserDocuments in our app, so It doesnt know this.save() exists
-          // This would be a better workflow compared to having to do user.save in the passport login
+          // Will always be UserDocuments in our app, so It doesn't know this.save() exists
+          // This would be a better workflow compared to having to do user.save in the
+          // passport login
           // return this.save();
           return Promise.reject({message: err});
-      })
+      });
   }
 
   /**
@@ -225,8 +229,8 @@ export class User extends PublicUser implements IUser {
    * @param password
    * @returns {Promise<string>}
    */
-  generateHash(password): Promise<string>{
-    return bcrypt.hash(password, 8)
+  generateHash(password): Promise<string> {
+    return bcrypt.hash(password, 8);
   };
 
   /**
@@ -241,7 +245,8 @@ export class User extends PublicUser implements IUser {
   /**
    * Hook for login event
    *
-   * This is where we should update the user whenever they login. For example, adding an item to the logins array
+   * This is where we should update the user whenever they login.
+   * For example, adding an item to the logins array
    *
    * @returns {boolean}
    */
@@ -255,7 +260,7 @@ export class User extends PublicUser implements IUser {
     this.lastLogin = getTimestamp();
     this.setLocked(false);
 
-    console.log("Logged in");
+    console.log('Logged in');
     return true;
   }
 
@@ -363,25 +368,26 @@ export class User extends PublicUser implements IUser {
     console.log('User Pre-save');
 
     if (document.isNew) {
-      console.log("Document is new, setting created timestamp", document.created, getTimestamp());
+      console.log('Document is new, setting created timestamp', document.created, getTimestamp());
       document.created = getTimestamp();
     }
     if (document.isModified) {
-      console.log("Document is modified, setting modified timestamp", document.created, getTimestamp());
+      console.log('Document is modified, setting modified timestamp',
+                   document.created, getTimestamp());
       document.modified = getTimestamp();
     }
     if (this.role === UserRole.Admin) {
       this.addTag(UserTags.ADMIN);
     }
     if (document.isModified('local.password')) {
-      console.log("Document password is modified, hashing password", document.local.password);
+      console.log('Document password is modified, hashing password', document.local.password);
       this.generateHash(document.local.password)
         .then((pass) => {
           console.log('User Pre-save: hash generated ', pass);
           document.local.password = pass;
-          console.log("User password hashed and saved");
+          console.log('User password hashed and saved');
           next();
-        })
+        });
     } else {
       next();
     }
@@ -403,7 +409,7 @@ export class User extends PublicUser implements IUser {
       resetPasswordToken: this.resetPasswordToken,
       resetPasswordExpires: this.resetPasswordExpires,
       tags: this.tags
-    })
+    });
   }
 }
 
@@ -450,7 +456,9 @@ userSchema.method('addTag', User.prototype.addTag);
 
 
 // Register schema hooks
-userSchema.pre('save', function(next) {User.prototype.preSave.bind(this)(this, next)});
+userSchema.pre('save', function(next) {
+  User.prototype.preSave.bind(this)(this, next);
+});
 
 
 

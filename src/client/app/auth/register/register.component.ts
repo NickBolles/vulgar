@@ -12,39 +12,17 @@ import {
 
 import {AppState} from '../../app.service';
 import {AuthService} from '../../shared/services/auth.service';
-import {ValidationService} from "../../shared/services/validation.service";
+import {ValidationService} from '../../shared/services/validation.service';
 import {EqualValidator, UsernameValidator, EmailValidator} from '../shared/directives';
 import {FormModel} from './form.model';
 import {User} from './user.model';
 import {CustomValidators} from 'ng2-validation';
-import {AbstractFormComponent} from "../../shared/components/Form.component";
-
-const re = {
-  email: {
-    complex: {
-      // Complex Javascript Regex (ASCII Only)
-      // https://regex101.com/r/dZ6zE6/1#
-      ascii: '(?=[A-Za-z0-9][A-Za-z0-9@._%+-]{5,253}$)[A-Za-z0-9._%+-]{1,64}@(?:(?=[A-Za-z0-9-]{1,63}\.)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\.){1,8}[A-Za-z]{2,63}',
-      // Complex Javascript Regex (With Non ASCII Support)
-      // https://regex101.com/r/sF6jE4/1
-      nonascii: '(?=([A-Za-z0-9]|[^\x00-\x7F])([A-Za-z0-9@._%+-]|[^\x00-\x7F]){5,253}$)([A-Za-z0-9._%+-]|[^\x00-\x7F]){1,64}@(?:(?=([A-Za-z0-9-]|[^\x00-\x7F]){1,63}\.)([A-Za-z0-9]|[^\x00-\x7F])+(?:-([A-Za-z0-9]|[^\x00-\x7F])+)*\.){1,8}([A-Za-z]|[^\x00-\x7F]){2,63}',
-    },
-    simple: {
-      // Simple 'Good Enough' Javascript Regex (ASCII Only)
-      // https://regex101.com/r/aI9yY6/1
-      ascii: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}',
-      // Simple 'Good Enough' Javascript Regex (With Non ASCII Support)
-      // https://regex101.com/r/hM7lN3/1
-      nonascii: '([a-zA-Z0-9._%+-]|[^\x00-\x7F])+?@([a-zA-Z0-9.-]|[^\x00-\x7F])+\.([a-zA-Z]|[^\x00-\x7F]){2,63}'
-    }
-  }
-};
-
+import {AbstractFormComponent} from '../../shared/components/Form.component';
 
 @Component({
   selector: 'register-form',
   templateUrl: 'register.component.html',
-  styleUrls: ['form.scss']
+  styleUrls: ['../form.scss']
 })
 export class RegisterComponent extends AbstractFormComponent {
 
@@ -106,15 +84,22 @@ export class RegisterComponent extends AbstractFormComponent {
   buildForm(formModel) {
     super.buildForm(formModel);
     // todo: add a pattern?
-    //todo: break out into its own module
-    let password = new FormControl(formModel.password, [<any>Validators.required, <any>Validators.minLength(8)]);
+    // todo: break out into its own module
+    let password = new FormControl(formModel.password,
+                                    [<any>Validators.required, <any>Validators.minLength(8)]);
     this.form = this.formBuilder.group({
-      username: [formModel.username, [<any>Validators.required, <any>Validators.minLength(3), <any>Validators.maxLength(32)],
+      username: [formModel.username, [<any>Validators.required,
+                                      <any>Validators.minLength(3),
+                                      <any>Validators.maxLength(32)],
                                   this.validateUniqueUsername.bind(this)],
-      firstName: [formModel.name.first, [<any>Validators.required, <any>Validators.maxLength(32)]],
-      lastName: [formModel.name.last, [<any>Validators.minLength(3), <any>Validators.maxLength(32)]],
-      email: [formModel.email, [<any>Validators.required, <any>Validators.minLength(3),
-                            <any>Validators.pattern(re.email.complex.ascii.toString()), <any>Validators.maxLength(32)],
+      firstName: [formModel.name.first, [<any>Validators.required,
+                                         <any>Validators.maxLength(32)]],
+      lastName: [formModel.name.last, [<any>Validators.minLength(3),
+                                       <any>Validators.maxLength(32)]],
+      email: [formModel.email, [<any>Validators.required,
+                                <any>Validators.minLength(3),
+                                <any>Validators.pattern(CustomValidators.email),
+                                <any>Validators.maxLength(32)],
                             this.validateUniqueEmail.bind(this)],
       password: password,
       confirm: [formModel.confirm, [CustomValidators.equalTo(password)]]
@@ -135,7 +120,7 @@ export class RegisterComponent extends AbstractFormComponent {
 
   submitRequest(user) {
     // Attempt to register
-    return this.authService.register(user)
+    return this.authService.register(user);
   }
 
   onSubmitSuccess(res) {
@@ -162,7 +147,7 @@ export class RegisterComponent extends AbstractFormComponent {
     let body = err._body;
     try {
       body = err.json();
-    } catch(e) {}
+    } catch (e) {}
     // todo: add more description
     this.message = body.message || this.messages.failed;
   }

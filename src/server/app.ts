@@ -83,7 +83,7 @@ class Server {
    * @return void
    */
   private config() {
-    //if (process.env.NODE_ENV === 'development' ||
+    // if (process.env.NODE_ENV === 'development' ||
     //  process.env.NODE_ENV === 'test') {
     // Log every `request` to the console
     this.app.use(morgan('dev'));
@@ -165,8 +165,8 @@ class Server {
    */
   private routes(app: express.Application,
                  passport: any,
-                 ServerEventEmitter: ServerEvent.EventEmitter) {
-    routeConf(app, passport, ServerEventEmitter);
+                 serverEventEmitter: ServerEvent.EventEmitter) {
+    routeConf(app, passport, serverEventEmitter);
   }
 }
 

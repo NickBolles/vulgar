@@ -23,8 +23,9 @@ export class AuthConnectionBackend extends XHRBackend {
       let xhrConnection = super.createConnection(request);
 
       xhrConnection.response = xhrConnection.response.catch((error: Response) => {
-        if (window.location.pathname !== '/login' && (error.status === 401 || error.status === 403)
-              && (window.location.href.match(/\?/g) || []).length < 2) {
+        if (window.location.pathname !== '/#/login' &&
+          (error.status === 401 || error.status === 403) &&
+          (window.location.href.match(/\?/g) || []).length < 2) {
 
           console.warn('The authentication session has expired or the '
             + 'user is not authorized for this content. Forcing refresh '

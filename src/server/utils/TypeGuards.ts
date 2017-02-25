@@ -1,4 +1,4 @@
-let toString = Object.prototype.toString;
+const toString = Object.prototype.toString;
 
 export function isArray<T>(obj: any): obj is T[] {
   return Array.isArray(obj);
@@ -16,7 +16,9 @@ export function isArray<T>(obj: any): obj is T[] {
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is undefined.
  */
-export function isUndefined(value: any): value is undefined {return typeof value === 'undefined';}
+export function isUndefined(value: any): value is undefined {
+  return typeof value === 'undefined';
+}
 
 
 /**
@@ -31,7 +33,9 @@ export function isUndefined(value: any): value is undefined {return typeof value
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is defined.
  */
-export function isDefined(value: any): boolean {return typeof value !== 'undefined';}
+export function isDefined(value: any): boolean {
+  return typeof value !== 'undefined';
+}
 
 
 /**
@@ -75,7 +79,9 @@ export function isBlankObject(value: any): boolean {
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `String`.
  */
-export function isString(value: any): value is string {return typeof value === 'string';}
+export function isString(value: any): value is string {
+  return typeof value === 'string';
+}
 
 
 /**
@@ -90,13 +96,15 @@ export function isString(value: any): value is string {return typeof value === '
  * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
  *
  * If you wish to exclude these then you can use the native
- * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
+ * [`isFinite'](https://goo.gl/IOjQXK)
  * method.
  *
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
-export function isNumber(value: any): value is number {return typeof value === 'number';}
+export function isNumber(value: any): value is number {
+  return typeof value === 'number';
+}
 
 
 /**
@@ -188,7 +196,8 @@ export function isPromiseLike(obj: any): boolean {
 }
 
 
-var TYPED_ARRAY_REGEXP = /^\[object (?:Uint8|Uint8Clamped|Uint16|Uint32|Int8|Int16|Int32|Float32|Float64)Array]$/;
+const TYPED_ARRAY_REGEXP =
+  /^\[object (?:Uint8|Uint8Clamped|Uint16|Uint32|Int8|Int16|Int32|Float32|Float64)Array]$/;
 export function isTypedArray(value: any): boolean {
   return value && isNumber(value.length) && TYPED_ARRAY_REGEXP.test(toString.call(value));
 }

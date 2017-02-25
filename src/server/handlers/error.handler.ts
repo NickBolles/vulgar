@@ -2,9 +2,9 @@ import Emitter  from './emitter';
 import Handler  from './handler';
 
 export interface IServerError {
-  type: ServerError,
-  from: number,
-  data?: any
+  type: ServerError;
+  from: number;
+  data?: any;
 }
 
 export enum ServerError {
@@ -48,8 +48,10 @@ export namespace ServerError {
      * @private
      */
     private handlerConf() {
-      for(let error in ServerError) {
-        this.emitter.addListener(ServerError[error], (e, cb) => this.onHandle(e, cb));
+      for (let error in ServerError) {
+        if (ServerError.hasOwnProperty(error)) {
+          this.emitter.addListener(ServerError[error], (e, cb) => this.onHandle(e, cb));
+        }
       }
     }
   }

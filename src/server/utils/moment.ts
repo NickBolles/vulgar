@@ -1,4 +1,4 @@
-import moment = require("moment");
+import * as moment from 'moment';
 /**
  * Created by Nick on 2/14/2017.
  */

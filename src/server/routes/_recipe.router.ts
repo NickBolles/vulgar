@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
 import * as express from 'express';
 // Load `Router` model
 import recipe = require('../models/recipe.model');
-import Recipe = recipe.Recipe // alias
-import RecipeDocument = recipe.RecipeDocument // alias
-import Recipes = recipe.Recipes // alias
+import Recipe = recipe.Recipe; // alias
+import RecipeDocument = recipe.RecipeDocument; // alias
+import Recipes = recipe.Recipes; // alias
 
 import Router from './router';
 
 const BASE_URI = '/recipe';
 
-module Route {
+namespace Route {
 
   export class Routes extends Router {
 
@@ -77,7 +77,7 @@ module Route {
               recipe.directions = req.body.directions;
           };
           super.updateOne(req, res, next, id, mod);
-        })
+        });
     }
   }
 }

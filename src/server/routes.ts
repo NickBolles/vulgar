@@ -8,11 +8,11 @@
 import * as express from 'express';
 
 // Load our `API` routes for user authentication
-import * as authRouter from "./routes/_authentication.router";
+import * as authRouter from './routes/_authentication.router';
 // Load our `API` router for the `validation` service
-import * as validationRouter from "./routes/_validation.router";
+import * as validationRouter from './routes/_validation.router';
 // Load our `API` router for the `todo` component
-import * as todoRouter from "./routes/_todo.router";
+import * as todoRouter from './routes/_todo.router';
 // Load our `API` router for the `recipe` component
 import * as recipeRouter from './routes/_recipe.router';
 
@@ -26,7 +26,7 @@ import { ServerEvent, IServerEvent } from './handlers/event.handler';
 
 export default (app: express.Application,
                 passport: any,
-                ServerEventEmitter: ServerEvent.EventEmitter) => {
+                serverEventEmitter: ServerEvent.EventEmitter) => {
 
   let router: express.Router;
   // Get an instance of the `express` `Router`
@@ -39,13 +39,13 @@ export default (app: express.Application,
   router.use((req: express.Request,
               res: express.Response,
               next: express.NextFunction) => {
-    if(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
 
       let event: IServerEvent = {
         type: ServerEvent.NotifyRequest,
         from: process.pid
       };
-      ServerEventEmitter.emit(event.type, event, () => {
+      serverEventEmitter.emit(event.type, event, () => {
         numReqs++;
         console.log('I sense a disturbance in the force...');
         console.log(`{${event.from}} - requests served since last restart: ${numReqs}`);
@@ -101,6 +101,11 @@ export default (app: express.Application,
 
   let recipeRoutes: recipeRouter.Routes = new recipeRouter.Routes(this.app, router);
 
+  // #### Admin Dashboard Routes
+
+  let adminDashRoutes: authRouter.Routes
+    = new authRouter.Routes(this.app, router, passport, auth, admin);
+
   // All of our routes will be prefixed with /api
   app.use('/api', router);
 
@@ -113,8 +118,8 @@ export default (app: express.Application,
   app.get('*', (req, res) => {
 
     // Load our src/app.html file
-    //** Note that the root is set to the parent of this folder, ie the app root **
-    res.sendFile('/dist/client/index.html', { root: __dirname + "/../../"});
+    // ** Note that the root is set to the parent of this folder, ie the app root **
+    res.sendFile('/dist/client/index.html', { root: __dirname + '/../../'});
   });
 
   // Use `router` middleware

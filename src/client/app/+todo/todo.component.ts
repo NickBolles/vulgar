@@ -62,10 +62,9 @@ export class TodoComponent {
     this.todoService.deleteTodo(id)
       .subscribe((res) => {
         console.log(res.status);
-        if(res.status === 204) {
+        if (res.status === 204) {
           this.getTodos();
-        }
-        else {
+        } else {
           // TODO: Add alerts
           alert('Failed to delete todo! Please try again!');
         }

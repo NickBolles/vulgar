@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 
 import * as express from 'express';
 // Load `User` `interfaces`, `class`, and `model`
-import { IUser, User, UserDocument, Users } from '../models/user.model';
+import { User, Users } from '../models/user.model';
 
 import Router from './router';
 
 const BASE_URI = '/validate';
 
-module Route {
+namespace Route {
 
   export class Routes extends Router {
 
@@ -28,11 +28,11 @@ module Route {
           let username = { 'local.username': req.params.username };
           // Use `mongoose` to a single `user` item by `username` in the database
           Users.findOne(username, (err: any, user: User) => {
-            if(err)
+            if (err) {
               res.send(err);
-            else {
+            } else {
               // If no user was found with a matching username
-              if(user === null) {
+              if (user === null) {
                 // Set a `HTTP` status code of `404` `Not Found`
                 // Send our validation object
                 res.status(404).json({ usernameTaken: false });
@@ -52,11 +52,11 @@ module Route {
           let email = { 'local.email': req.params.email };
           // Use `mongoose` to a single `user` item by `username` in the database
           Users.findOne(email, (err: any, user: User) => {
-            if(err)
+            if (err) {
               res.send(err);
-            else {
+            } else {
               // If no user was found with a matching username
-              if(user === null) {
+              if (user === null) {
                 // Set a `HTTP` status code of `404` `Not Found`
                 // Send our validation object
                 res.status(404).json({ emailTaken: false });
@@ -68,7 +68,7 @@ module Route {
               }
             }
           });
-        })
+        });
     }
   }
 }

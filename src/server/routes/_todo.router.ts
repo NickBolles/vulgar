@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
 import * as express from 'express';
 // Load `Todo` model
 import todo = require('../models/todo.model');
-import Todo = todo.Todo // alias
-import TodoDocument = todo.TodoDocument // alias
-import Todos = todo.Todos // alias
+import Todo = todo.Todo; // alias
+import TodoDocument = todo.TodoDocument; // alias
+import Todos = todo.Todos; // alias
 
 import Router from './router';
 
 const BASE_URI = '/todo';
 
-module Route {
+namespace Route {
 
   export class Routes extends Router {
 
@@ -59,7 +59,7 @@ module Route {
               todo.text = req.body.text;
           };
           super.updateOne(req, res, next, id, mod);
-        })
+        });
     }
   }
 }

@@ -4,7 +4,8 @@ import { Http, Headers } from '@angular/http';
 // `Injectable` is usually used with `Dart` metadata
 // generation; it has no special meaning within `TypeScript`
 // This makes sure `TypeScript` emits the needed metadata
-// Reference : http://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
+// Reference :
+// http://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
 @Injectable()
 export class TodoService {
   // The `public` keyword denotes that the constructor parameter will
@@ -16,7 +17,7 @@ export class TodoService {
   // Reference: https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md#3-types
   // Here we intend the constructor function to be called with the
   // `Http` parameter
-  constructor(public http:Http) {
+  constructor(public http: Http) {
 
   }
 

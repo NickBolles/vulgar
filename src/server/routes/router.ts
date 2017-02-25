@@ -1,8 +1,4 @@
-import * as express from "express";
-
-// Grab the Mongoose module
-//import * as mongoose from 'mongoose';
-//let Schema = mongoose.Schema;
+import * as express from 'express';
 
 export default class Router {
 
@@ -25,10 +21,11 @@ export default class Router {
                 next: express.NextFunction) {
     // Use mongoose to get all requested items in the database
     this.model.find((err, item) => {
-      if(err)
+      if (err) {
         res.send(err);
-      else
+      } else {
         res.json(item);
+      }
     });
   }
 
@@ -39,11 +36,11 @@ export default class Router {
 
     this.model.findOne(id, (err, item) => {
 
-      if(err)
+      if (err) {
         res.send(err);
-
-      else
+      } else {
         res.json(item);
+      }
     });
   };
 
@@ -67,14 +64,14 @@ export default class Router {
                       next: express.NextFunction,
                       id: any) {
 
-    this.model.remove(id, (err, item) => {
+    this.model.remove(id, (err) => {
 
-      if(err)
+      if (err) {
         res.send(err);
-
-      else
+      } else {
         // HTTP `204` - `No Content`
         res.sendStatus(204);
+      }
     });
   };
 
@@ -86,14 +83,16 @@ export default class Router {
 
     // use our model to find the item we want
     this.model.findOne(id, (err, item) => {
-      if (err)
+      if (err) {
         res.send(err);
+      }
       // Apply passed in data modifications
       mod(item);
       // save the todo item
-      return item.save((err) => {
-        if (err)
-          res.send(err);
+      return item.save((err2) => {
+        if (err2) {
+          res.send(err2);
+        }
         return res.send(item);
       });
     });

@@ -37,21 +37,6 @@ export default class Handler implements IHandler {
   }
 
   /**
-   * Generate a random value in hexadecimal format
-   *
-   * @class Handler
-   * @method generateHandlerId
-   * @private
-   * @param {number} length [8] - the length of the generated id
-   * @return {string} - Generated hexadecimal value
-   */
-  private generateHandlerId(length: number = 8) {
-    return crypto.randomBytes(Math.ceil(length/2))
-      .toString('hex')   // convert to hexadecimal format
-      .slice(0, length); // return required number of characters
-  }
-
-  /**
    * Execute the emitted callback function
    *
    * @class Handler
@@ -62,7 +47,23 @@ export default class Handler implements IHandler {
    * @return void
    */
   protected onHandle(e: IServerEvent, cb: any) {
-    if(cb)
+    if (cb) {
       cb();
+    }
+  }
+
+  /**
+   * Generate a random value in hexadecimal format
+   *
+   * @class Handler
+   * @method generateHandlerId
+   * @private
+   * @param {number} length [8] - the length of the generated id
+   * @return {string} - Generated hexadecimal value
+   */
+  private generateHandlerId(length: number = 8) {
+    return crypto.randomBytes(Math.ceil(length / 2))
+      .toString('hex')   // convert to hexadecimal format
+      .slice(0, length); // return required number of characters
   }
 }

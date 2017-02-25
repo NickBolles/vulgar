@@ -27,13 +27,13 @@ export class UsernameValidator implements Validator {
     let v = c.value.toLowerCase();
 
     return this.validationService.validateUsername(v)
-        .map(res=>res.json())
+        .map(res => res.json())
         .catch((err) => {
           return err.status === 409 ? Observable.of({'usernameTaken': true})
                                     : Observable.of(null);
 
       })
-      .subscribe((res)=>{
+      .subscribe((res) => {
         c.setErrors(res);
       }, (err) => {
         console.error('Username validation error:', err);

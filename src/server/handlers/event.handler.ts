@@ -2,9 +2,9 @@ import Emitter  from './emitter';
 import Handler  from './handler';
 
 export interface IServerEvent {
-  type: ServerEvent,
-  from: number,
-  data?: any
+  type: ServerEvent;
+  from: number;
+  data?: any;
 }
 
 export enum ServerEvent {
@@ -52,8 +52,10 @@ export namespace ServerEvent {
      * @private
      */
     private handlerConf() {
-      for(let event in ServerEvent) {
-        this.emitter.addListener(ServerEvent[event], (e, cb) => this.onHandle(e, cb));
+      for (let event in ServerEvent) {
+        if (ServerEvent.hasOwnProperty(event)) {
+          this.emitter.addListener(ServerEvent[event], (e, cb) => this.onHandle(e, cb));
+        }
       }
     }
   }

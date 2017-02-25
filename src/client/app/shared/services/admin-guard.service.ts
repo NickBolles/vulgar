@@ -7,7 +7,7 @@ import { ActivatedRouteSnapshot,
 import { AuthService } from './auth.service';
 import { AppState } from '../../app.service';
 import { Observable } from 'rxjs/Observable';
-import { UserRole } from '../../../../shared/user.roles'
+import { UserRole } from '../../../../shared/user.roles';
 
 @Injectable()
 export class AdminGuard implements CanActivate, CanActivateChild {
@@ -16,7 +16,8 @@ export class AdminGuard implements CanActivate, CanActivateChild {
               private authService: AuthService,
               private router: Router) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+  canActivate(route: ActivatedRouteSnapshot,
+              state: RouterStateSnapshot): Observable<boolean> | boolean {
     // DEBUG
     // TODO: Remove this DEBUG statement
     console.log('AdminGuard#canActivate called');
@@ -26,7 +27,8 @@ export class AdminGuard implements CanActivate, CanActivateChild {
     return this.isUserAuthenticated(url);
   }
 
-  canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean  {
+  canActivateChild(route: ActivatedRouteSnapshot,
+                   state: RouterStateSnapshot): Observable<boolean> | boolean  {
     return this.canActivate(route, state);
   }
 
@@ -34,16 +36,17 @@ export class AdminGuard implements CanActivate, CanActivateChild {
 
     return this.authService.authenticate().map((user) => {
 
-      if(user.role !== UserRole.Admin || user === 0) {
+      if (user.role !== UserRole.Admin || user === 0) {
 
         // Store the attempted URL for redirecting.
         this.authService.redirectUrl = url;
 
         // DEBUG
         // TODO: Remove this DEBUG statement
-        console.warn('User security clearance not high enough to access this content! Redirecting user to login.');
+        console.warn('User security clearance not high enough to ' +
+          'access this content! Redirecting user to login.');
 
-        //todo: notify user
+        // todo: notify user
         this.router.navigate(['/login']);
 
         return false;
@@ -54,7 +57,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
 
       }
     }, (err) => {
-      console.error(err)
+      console.error(err);
     });
   }
 }

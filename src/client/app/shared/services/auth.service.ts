@@ -13,7 +13,8 @@ const ROUTE_URI = '/api/auth/';
 // `Injectable` is usually used with `Dart` metadata
 // generation; it has no special meaning within `TypeScript`
 // This makes sure `TypeScript` emits the needed metadata
-// Reference : http://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
+// Reference :
+// http://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
 @Injectable()
 export class AuthService {
 
@@ -57,7 +58,7 @@ export class AuthService {
                     .map((res) => {
                       this.appState.set('isAuthenticated', 1);
                       return res.json();
-                    })
+                    });
   }
 
   logout() {

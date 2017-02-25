@@ -13,14 +13,14 @@ import {
 import {AppState} from '../../app.service';
 import {AuthService} from '../../shared/services/auth.service';
 import {FormModel} from './form.model';
-import {AbstractFormComponent} from "../../shared/components/Form.component";
-import {ValidationService} from "../../shared/services/validation.service";
+import {AbstractFormComponent} from '../../shared/components/Form.component';
+import {ValidationService} from '../../shared/services/validation.service';
 
 @Component({
   templateUrl: 'login.component.html',
-  styleUrls: ['form.scss']
+  styleUrls: ['../form.scss']
 })
-export class LoginComponent extends AbstractFormComponent{
+export class LoginComponent extends AbstractFormComponent {
 
   messages = {
     ...this.messages,
@@ -34,11 +34,11 @@ export class LoginComponent extends AbstractFormComponent{
   validationMessages= {
     'username': {
       'required': 'Username or email is required',
-      'minLength': 'Must be at least 4 characters'
+      'minlength': 'Must be at least 3 characters'
     },
     'password': {
-      'required': 'Username or email is required',
-      'minLength': 'Must be at least 4 characters'
+      'required': 'Password is required',
+      'minlength': 'Must be at least 8 characters'
     }
   };
 
@@ -107,7 +107,7 @@ export class LoginComponent extends AbstractFormComponent{
     let body = err._body;
     try {
       body = err.json();
-    } catch(e) {}
+    } catch (e) { }
     this.message = body.message || body || err;
   }
 

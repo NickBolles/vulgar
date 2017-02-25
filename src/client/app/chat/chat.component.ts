@@ -23,7 +23,7 @@ export class ChatComponent extends ClientSocket {
          * If the user is not logged in, generate a random handle for them to use
          * with the chat system.
          */
-        if(user === 0)
+        if (user === 0)
           this.handle = 'user-' + Math.floor((Math.random() * 10000) + 1);
         /**
          * Otherwise set the user's handle to the username retrieved from the
