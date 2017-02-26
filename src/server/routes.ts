@@ -17,6 +17,7 @@ import * as todoRouter from './routes/_todo.router';
 import * as recipeRouter from './routes/_recipe.router';
 
 import { ServerEvent, IServerEvent } from './handlers/event.handler';
+import {ContestRouter} from "./routes/_contest.router";
 
 // */app/routes.js*
 
@@ -100,6 +101,9 @@ export default (app: express.Application,
   let todoRoutes: todoRouter.Routes = new todoRouter.Routes(this.app, router);
 
   let recipeRoutes: recipeRouter.Routes = new recipeRouter.Routes(this.app, router);
+
+
+  let contestRouter = new ContestRouter(this.app, router, passport, auth, admin);
 
   // #### Admin Dashboard Routes
 
