@@ -344,34 +344,21 @@ export default function passportConf(passport) {
           return done(null, user);
         })
         // Catch any errors in the login processes
-        .catch<IVerifyOptions>((err) => {
+        .catch((err) => {
           // TODO: remove debug log
           console.log('Login failed with error', err);
           // This save saves the login array that was modified in user.login()
           // This belongs in the User.login function, but because Typescript doesnt recognize the Document
           // methods inside of the class this isn't easy to achieve
-          return user.save((err) => {
-            console.log("User saved cb", err);
-          })
-            .then(() => {
-            console.log("User saved");
-              return err;
-            });
+          return user.save(() => {
+            // TODO: remove debug log
+            // console.error('unable to save user', err);
+            return done(null,
+              false,
+              err);
+          });
         })
-        // After user is done saving the errors
-        .then((err: IVerifyOptions) => {
-          // todo: remove debug log
-          console.error('unable to login because ', err);
-          return done(null,
-            false,
-            err);
-        }, (err) => {
-          // TODO: remove debug log
-          console.error('unable to save user', err);
-          return done(null,
-            false,
-            err);
-        })
+
     });
   }));
 };
