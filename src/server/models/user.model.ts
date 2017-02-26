@@ -189,13 +189,14 @@ export class User extends PublicUser implements IUser {
    * @returns {Promise<TResult|boolean>}
    */
   login(password): Promise<boolean | SimpleError> {
-    console.log('Logging in ');
+    console.log('Logging in ', this.local.username, this.local.email );
     // Increment the login attempts and check if the user is locked
     // This handles checking if the lock is expired also
     let locked = this.incLoginAttempt();
     return this.validPassword(password)
       .then((valid) => {
         console.log('password valid? ', valid, password, this.local.password);
+        console.log('locked? ', locked, this.lockUntil, this.loginAttempts);
         if (locked) {
           return Promise.reject(`Account is locked. Please Try again ` +
             `${this.remainingLockReadable()}, or reset your password with the ` +
@@ -270,8 +271,8 @@ export class User extends PublicUser implements IUser {
    * @returns {boolean}
    */
   incLoginAttempt(): boolean {
-    // // Avoid counting every attempt against the user
-    if (this.isLocked()) {
+    // Avoid counting every attempt against the user during the lock time
+    if (!this.isLockExpired()) {
       return true;
     }
 
@@ -287,8 +288,8 @@ export class User extends PublicUser implements IUser {
   isLocked(): boolean {
     let locked = this.lockUntil && !this.isLockExpired();
 
-    // If its not locked, but it should be, lock it
-    if (!locked && this.loginAttempts > User.MAX_LOGIN_ATTEMPTS) {
+    // If its not locked, its not just expired, an it should be locked, lock it
+    if (!locked && !this.isLockExpired() && this.loginAttempts > User.MAX_LOGIN_ATTEMPTS) {
       locked = this.setLocked(true);
     }
     return locked;
@@ -473,3 +474,4 @@ export let Users = mongoose.model<UserDocument>('User', userSchema);
 export function isUserDocument(obj: any): obj is UserDocument {
   return '_id' in obj && 'local' in obj && 'name' in obj && 'logins' in obj;
 }
+
