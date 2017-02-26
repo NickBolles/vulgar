@@ -4,7 +4,7 @@
 
 
 export enum UserRole {
-  root = 0,
-  Admin = 1,
-  User = 2
+  User = 10,
+  Admin = 20,
+  root = 30
 }
