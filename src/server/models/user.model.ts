@@ -454,6 +454,8 @@ userSchema.method('setLocked', User.prototype.setLocked);
 userSchema.method('remainingLockReadable', User.prototype.remainingLockReadable);
 userSchema.method('hasTag', User.prototype.hasTag);
 userSchema.method('addTag', User.prototype.addTag);
+// use PublicUser toJSON
+userSchema.method('toJSON', PublicUser.prototype.toJSON);
 
 
 // Register schema hooks
@@ -472,6 +474,6 @@ export let Users = mongoose.model<UserDocument>('User', userSchema);
 
 
 export function isUserDocument(obj: any): obj is UserDocument {
-  return '_id' in obj && 'local' in obj && 'name' in obj && 'logins' in obj;
+  return '_id' in obj && 'local' in obj && 'name' in obj && 'logins' in obj && 'save' in obj;
 }
 
